@@ -60,7 +60,14 @@ export function EditWorkItemDialog({
 
   useEffect(() => {
     if (isOpen) {
-      setCurrentWorkItem(workItem);
+      setCurrentWorkItem({
+        ...workItem,
+        status: workItem.status === Status.None ? Status.Open : workItem.status,
+        priority:
+          workItem.priority === Priority.None
+            ? Priority.Low
+            : workItem.priority,
+      });
     }
   }, [isOpen, workItem]);
 
@@ -82,8 +89,8 @@ export function EditWorkItemDialog({
         currentWorkItem.id,
         currentWorkItem.title,
         currentWorkItem.description,
-        currentWorkItem.status === Status.None ? null : currentWorkItem.status,
-        currentWorkItem.priority === Priority.None
+        currentWorkItem.status === Status.Open ? null : currentWorkItem.status,
+        currentWorkItem.priority === Priority.Low
           ? null
           : currentWorkItem.priority,
         currentWorkItem.assignedTo,
@@ -175,11 +182,13 @@ export function EditWorkItemDialog({
                 onChange={(e) => handleChange("status", e.target.value)}
                 className="w-full border border-gray-300 rounded p-2"
               >
-                {Object.values(Status).map((statusOption) => (
-                  <option key={statusOption} value={statusOption}>
-                    {statusOption}
-                  </option>
-                ))}
+                {Object.values(Status)
+                  .filter((statusOption) => statusOption !== Status.None)
+                  .map((statusOption) => (
+                    <option key={statusOption} value={statusOption}>
+                      {statusOption}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -192,11 +201,13 @@ export function EditWorkItemDialog({
                 onChange={(e) => handleChange("priority", e.target.value)}
                 className="w-full border border-gray-300 rounded p-2"
               >
-                {Object.values(Priority).map((priorityOption) => (
-                  <option key={priorityOption} value={priorityOption}>
-                    {priorityOption}
-                  </option>
-                ))}
+                {Object.values(Priority)
+                  .filter((priorityOption) => priorityOption !== Priority.None)
+                  .map((priorityOption) => (
+                    <option key={priorityOption} value={priorityOption}>
+                      {priorityOption}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
