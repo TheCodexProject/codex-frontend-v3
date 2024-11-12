@@ -49,6 +49,7 @@ export class ProjectService {
         data.id,
         data.title,
         data.containedIn,
+        data.description,
         data.status,
         data.priority,
         data.timeRange
@@ -81,6 +82,7 @@ export class ProjectService {
             project.id,
             project.title,
             project.containedIn,
+            data.description,
             project.status,
             project.priority,
             project.timeRange
@@ -112,10 +114,11 @@ export class ProjectService {
       return new Project(
         data.id,
         data.title,
+        data.containedIn,
+        data.description,
         data.status,
         data.priority,
-        data.timeRange,
-        data.containedIn
+        data.timeRange
       );
     } else {
       // ! Throw an error
@@ -172,10 +175,11 @@ export class ProjectService {
       return new Project(
         data.id,
         data.title,
+        data.containedIn,
+        data.description,
         data.status,
         data.priority,
-        data.timeRange,
-        data.containedIn
+        data.timeRange
       );
     } else {
       // ! Throw an error
