@@ -14,14 +14,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
-import { Moon, Sun } from "lucide-react"
+import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -56,6 +55,9 @@ import { ThemeModeToggle } from "@/components/theme-mode-toggle"
 //import { WorkItemEditDialog } from "@/app/workItem/dialog/work-item-edit-dialog"
 import { CreateWorkitemDialog } from "@/container Components/pop-ups/workitem/createWorkitemDialog"
 import { EditWorkItemDialog, Priority, Status } from "@/container Components/pop-ups/workitem/editWorkitemDialog"
+import { WorkItem } from "@/services/models/WorkItem"
+import { User } from "@/services/models/User"
+import { WorkItemService } from "@/services/features/WorkItemService"
 
 export function chooseBadgePriorityColor(priority: "High" | "Medium" | "Low" | "None"): string {
   //const colorMap: { [key: string]: string } = {
@@ -93,44 +95,8 @@ export function chooseBadgeStatusColor(status: "Open" | "In Progress" | "Complet
 
   return colorMap[status] || "default";
 }
-
-const data: Task[] = [
-  {
-    title: "Task #2",
-    description: "Something very very important to do on this Task specifically...",
-    status: "Open",
-    priority: "High",
-    type: "Task",
-    assignedTo: "admin@bobsen.dk",
-  },
-  {
-    title: "Task #4",
-    description: "",
-    status: "None",
-    priority: "Low",
-    type: "None",
-    assignedTo: "Unassigned",
-  },
-  {
-    title: "Task #3",
-    description: "",
-    status: "In Progress",
-    priority: "Medium",
-    type: "None",
-    assignedTo: "Unassigned",
-  },
-]
-
-export type Task = {
-  title: string;
-  description: string;
-  status: "Open" | "In Progress" | "Completed" | "None";
-  priority: "High" | "Medium" | "Low" | "None";
-  type: "Task" | "Bug" | "Feature" | "None";
-  assignedTo: string;
-}
  
-export const columns: ColumnDef<Task>[] = [
+export const columns: ColumnDef<WorkItem>[] = [
   {
     accessorKey: "title",
     header: "Title",
@@ -150,7 +116,7 @@ export const columns: ColumnDef<Task>[] = [
     header: "Status",
     cell: ({ row }) => {
       const status = row.getValue("status");
-      const badgeVariant = chooseBadgeStatusColor(status as Task["status"]) ;
+      const badgeVariant = chooseBadgeStatusColor(status as "None" | "Open" | "In Progress" | "Completed") ;
       return (
         <div className="capitalize">
           <Badge variant={badgeVariant as "destructive" || "secondary" || "outline" ||"default"}>{row.getValue("status")}</Badge>
@@ -172,7 +138,7 @@ export const columns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       const priority = row.getValue("priority");
       console.log('Priority:', priority); // Debugging line to check the value
-      const badgeVariant = chooseBadgePriorityColor(priority as Task["priority"]) ;
+      const badgeVariant = chooseBadgePriorityColor(priority as "High" | "Medium" | "Low" | "None") ;
       return (
         <div className="capitalize">
           <Badge variant={badgeVariant as "destructive" || "secondary" || "outline" ||"default"}>{row.getValue("priority")}</Badge>
@@ -197,7 +163,7 @@ export const columns: ColumnDef<Task>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const workItem = {id: "123", containedIn: "123", ...row.original}
+      const workItem = {...row.original}
  
       return (
         <Dialog>
@@ -211,7 +177,14 @@ export const columns: ColumnDef<Task>[] = [
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              
+              <EditWorkItemDialog 
+                workItem={workItem as WorkItem} 
+                trigger={
+                  <DropdownMenuLabel>
+                    Edit
+                  </DropdownMenuLabel>
+                }
+              />
             </DropdownMenuContent>
           </DropdownMenu>
           <DialogContent className="sm:max-w-[425px]">
@@ -246,18 +219,37 @@ export const columns: ColumnDef<Task>[] = [
   },
 ]
 
-export default function DataTableDemo({ children }: any) {
-  const { setTheme } = useTheme()
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
- 
+interface WorkItemTableProps {
+  projectId: string;
+  children?: React.ReactNode;
+}
+
+export default function WorkItemTable({ projectId, children }: WorkItemTableProps) {
+  const { setTheme } = useTheme();
+  const [tasks, setTasks] = useState<WorkItem[]>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+
+  const workItemService = new WorkItemService();
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const data = await workItemService.getWorkItems("0e63a6cf-01ec-4354-98ff-f8a680f71838"); // Replace with the actual project ID
+        console.log(data)
+        setTasks(data);
+      } catch (error) {
+        console.error('Failed to fetch tasks:', error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
+
   const table = useReactTable({
-    data,
+    data: tasks,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -273,8 +265,8 @@ export default function DataTableDemo({ children }: any) {
       columnVisibility,
       rowSelection,
     },
-  })
- 
+  });
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -289,9 +281,8 @@ export default function DataTableDemo({ children }: any) {
         
         <ThemeModeToggle />
 
-        
         <CreateWorkitemDialog 
-          projectId="222" 
+          projectId="0e63a6cf-01ec-4354-98ff-f8a680f71838" 
           trigger={
             <Button variant="outline" className="ml-4">
               Add Task
@@ -309,20 +300,16 @@ export default function DataTableDemo({ children }: any) {
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                )
-              })}
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  className="capitalize"
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                >
+                  {column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -331,44 +318,30 @@ export default function DataTableDemo({ children }: any) {
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -377,5 +350,6 @@ export default function DataTableDemo({ children }: any) {
         </Table>
       </div>
     </div>
-  )
+  );
 }
+

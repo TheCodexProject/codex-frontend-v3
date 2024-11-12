@@ -25,7 +25,7 @@ export enum Status {
   None = "None",
   Open = "Open",
   InProgress = "In Progress",
-  ReadyForReview = "Ready for Review",
+  ReadyForReview = "Ready For Review",
   Done = "Done",
   Closed = "Closed",
 }
@@ -40,7 +40,8 @@ export enum Priority {
 
 type EditWorkItemDialogProps = {
   workItem: WorkItem;
-  users: User[];
+  users?: User[];
+  trigger: React.ReactNode; // Add trigger prop
   onWorkItemUpdated?: (updatedWorkItem: WorkItem) => void;
   onWorkItemDeleted?: (workItemId: string) => void;
 };
@@ -50,6 +51,7 @@ const workItemService = new WorkItemService();
 export function EditWorkItemDialog({
   workItem,
   users,
+  trigger, // Add trigger prop
   onWorkItemUpdated,
   onWorkItemDeleted,
 }: EditWorkItemDialogProps) {
@@ -138,9 +140,7 @@ export function EditWorkItemDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => setIsOpen(true)}>
-          Edit Work Item
-        </Button>
+        <div onClick={() => setIsOpen(true)}>{trigger}</div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

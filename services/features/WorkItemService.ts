@@ -18,21 +18,21 @@ export class WorkItemService {
   ): Promise<WorkItem> {
     // * Make the request to create the work item
     const workItem = new CreateWorkItemRequest(title, projectId);
-
+  
     // # Send the request to the API
-    const response = await fetch("https://localhost:7006/api/workItems", {
+    const response = await fetch("https://localhost:7006/workItems", {
       method: "POST",
       body: JSON.stringify(workItem),
       headers: {
         "Content-Type": "application/json",
       },
     });
-
+  
     // ? Check if the request was successful
     if (response.ok) {
       // * Parse the response
       const data = await response.json();
-
+  
       // * Convert the response to a work item object
       return new WorkItem(
         data.id,
@@ -46,9 +46,11 @@ export class WorkItemService {
       );
     } else {
       // ! Throw an error
-      throw new Error("Failed to create work item");
+      throw new Error(`Failed to create work item: ${response.statusText}`);
+      console.log(response.body)
     }
   }
+  
 
   /**
    * Get all work items in a project
@@ -58,7 +60,7 @@ export class WorkItemService {
   public async getWorkItems(projectId: string): Promise<WorkItem[]> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/workItems?projectId=${projectId}`,
+      `https://localhost:7006/workItems?projectId=${projectId}`,
       {
         method: "GET",
         headers: {
@@ -99,7 +101,7 @@ export class WorkItemService {
    */
   public async getWorkItem(id: string): Promise<WorkItem> {
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/workItems/${id}`, {
+    const response = await fetch(`https://localhost:7006/workItems/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -152,17 +154,17 @@ export class WorkItemService {
   ): Promise<WorkItem> {
     // * Make the request to update the work item
     const workItem = new UpdateWorkItemRequest(
-      title,
-      description,
-      status,
-      priority,
-      assignee,
+      title?.replace(/\s/g, '') || '',
+      description?.replace(/\s/g, '') || '',
+      status?.replace(/\s/g, '') || '',
+      priority?.replace(/\s/g, '') || '',
+      assignee?.replace(/\s/g, '') || '',
       subItemsToAdd,
       subItemsToRemove
     );
-
+    
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/workItems/${id}`, {
+    const response = await fetch(`https://localhost:7006/workItems/${id}`, {
       method: "PUT",
       body: JSON.stringify(workItem),
       headers: {
@@ -198,7 +200,7 @@ export class WorkItemService {
    */
   public async deleteWorkItem(id: string): Promise<void> {
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/workItems/${id}`, {
+    const response = await fetch(`https://localhost:7006/workItems/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
