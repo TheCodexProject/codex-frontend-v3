@@ -6,7 +6,7 @@ import { Organization } from "@/services/models/Organization";
 import { Resource } from "@/services/models/Resource";
 
 interface OrganizationContextType {
-  organizations: Organization[] | null;
+  organizations: Organization[];
   resources: Record<string, Resource[]>; // Map organizationId -> resources
   getOrganizations: () => Promise<void>;
   createOrganization: (name: string, ownerId: string) => Promise<void>;
@@ -44,9 +44,7 @@ const OrganizationContext = createContext<OrganizationContextType | undefined>(
 export const OrganizationProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
-  const [organizations, setOrganizations] = useState<Organization[] | null>(
-    null
-  );
+  const [organizations, setOrganizations] = useState<Organization[]>([]); // Start as an empty list
   const [resources, setResources] = useState<Record<string, Resource[]>>({});
 
   const getOrganizations = async () => {
@@ -56,7 +54,7 @@ export const OrganizationProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
   const createOrganization = async (name: string, ownerId: string) => {
     const newOrg = await OrganizationService.createOrganization(name, ownerId);
-    setOrganizations((prev) => (prev ? [...prev, newOrg] : [newOrg]));
+    setOrganizations((prev) => [...prev, newOrg]);
   };
 
   const updateOrganization = async (
@@ -72,15 +70,13 @@ export const OrganizationProvider: React.FC<React.PropsWithChildren<{}>> = ({
       membersToRemove ?? null
     );
     setOrganizations((prev) =>
-      prev ? prev.map((org) => (org.id === id ? updatedOrg : org)) : null
+      prev.map((org) => (org.id === id ? updatedOrg : org))
     );
   };
 
   const deleteOrganization = async (id: string) => {
     await OrganizationService.deleteOrganization(id);
-    setOrganizations((prev) =>
-      prev ? prev.filter((org) => org.id !== id) : null
-    );
+    setOrganizations((prev) => prev.filter((org) => org.id !== id));
   };
 
   const getOrganizationResources = async (organizationId: string) => {
