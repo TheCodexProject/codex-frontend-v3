@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState } from "react";
 import OrganizationService from "@/services/features/OrganizationService";
 import { Organization } from "@/services/models/Organization";

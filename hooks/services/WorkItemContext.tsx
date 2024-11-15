@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState } from "react";
 import { WorkItem } from "@/services/models/WorkItem";
 import { WorkItemService } from "@/services/features/WorkItemService";

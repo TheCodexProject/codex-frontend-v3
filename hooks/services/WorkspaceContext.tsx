@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState } from "react";
 import WorkspaceService from "@/services/features/WorkspaceService";
 import { Workspace } from "@/services/models/Workspace";
