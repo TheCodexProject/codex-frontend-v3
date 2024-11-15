@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { WorkItemService } from "@/services/features/WorkItemService";
+import { useWorkItems } from "@/hooks/services/WorkItemContext";
 import { WorkItem } from "@/services/models/WorkItem";
 import { User } from "@/services/models/User";
 
@@ -41,18 +41,15 @@ export enum Priority {
 type EditWorkItemDialogProps = {
   workItem: WorkItem;
   users: User[];
-  onWorkItemUpdated?: (updatedWorkItem: WorkItem) => void;
-  onWorkItemDeleted?: (workItemId: string) => void;
+  trigger: React.ReactNode;
 };
-
-const workItemService = new WorkItemService();
 
 export function EditWorkItemDialog({
   workItem,
   users,
-  onWorkItemUpdated,
-  onWorkItemDeleted,
+  trigger,
 }: EditWorkItemDialogProps) {
+  const { updateWorkItem, deleteWorkItem } = useWorkItems(); // Use WorkItemContext for updates and deletion
   const [currentWorkItem, setCurrentWorkItem] = useState<WorkItem>(workItem);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -85,7 +82,7 @@ export function EditWorkItemDialog({
     setLoading(true);
 
     try {
-      const updatedWorkItem = await workItemService.updateWorkItem(
+      await updateWorkItem(
         currentWorkItem.id,
         currentWorkItem.title,
         currentWorkItem.description,
@@ -101,8 +98,6 @@ export function EditWorkItemDialog({
       setErrors([]);
       setLoading(false);
       setIsOpen(false);
-
-      onWorkItemUpdated?.(updatedWorkItem);
     } catch (err) {
       setErrors([
         err instanceof Error ? err.message : "An unexpected error occurred.",
@@ -114,12 +109,10 @@ export function EditWorkItemDialog({
   const handleDelete = async () => {
     setLoading(true);
     try {
-      await workItemService.deleteWorkItem(currentWorkItem.id);
+      await deleteWorkItem(currentWorkItem.id);
 
       setLoading(false);
       setIsOpen(false);
-
-      onWorkItemDeleted?.(currentWorkItem.id);
     } catch (err) {
       setErrors([
         err instanceof Error ? err.message : "An unexpected error occurred.",
@@ -137,11 +130,7 @@ export function EditWorkItemDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => setIsOpen(true)}>
-          Edit Work Item
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Work Item</DialogTitle>

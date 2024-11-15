@@ -15,27 +15,24 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import WorkspaceService from "@/services/features/WorkspaceService";
 import { Workspace } from "@/services/models/Workspace";
-import { User } from "@/services/models/User";
+import { useWorkspaceData } from "@/hooks/services/WorkspaceContext";
+import { useUserData } from "@/hooks/services/UserContext"; // Import UserContext for contacts
 
 const TitleSchema = z.string().min(1, "Workspace title is required.");
 
 type EditWorkspaceDialogProps = {
   workspace: Workspace;
   trigger: React.ReactNode;
-  availableContacts: User[];
-  onWorkspaceUpdated?: (updatedWorkspace: Workspace) => void;
-  onWorkspaceDeleted?: (workspaceId: string) => void; // Callback for when the workspace is deleted
 };
 
 export function EditWorkspaceDialog({
   workspace,
   trigger,
-  availableContacts,
-  onWorkspaceUpdated,
-  onWorkspaceDeleted,
 }: EditWorkspaceDialogProps) {
+  const { updateWorkspace, deleteWorkspace } = useWorkspaceData();
+  const { users: availableContacts } = useUserData(); // Fetch availableContacts from UserContext
+
   const [title, setTitle] = useState(workspace.title);
   const [contactsToAdd, setContactsToAdd] = useState<string[]>([]);
   const [contactsToRemove, setContactsToRemove] = useState<string[]>([]);
@@ -83,7 +80,7 @@ export function EditWorkspaceDialog({
     setLoading(true);
 
     try {
-      const updatedWorkspace = await WorkspaceService.updateWorkspace(
+      await updateWorkspace(
         workspace.id,
         title,
         contactsToAdd,
@@ -95,8 +92,6 @@ export function EditWorkspaceDialog({
       setErrors([]);
       setLoading(false);
       setIsOpen(false);
-
-      onWorkspaceUpdated?.(updatedWorkspace);
     } catch (err) {
       setErrors([
         err instanceof Error ? err.message : "An unexpected error occurred.",
@@ -108,10 +103,9 @@ export function EditWorkspaceDialog({
   const handleDelete = async () => {
     setLoading(true);
     try {
-      await WorkspaceService.deleteWorkspace(workspace.id);
+      await deleteWorkspace(workspace.id);
       setLoading(false);
       setIsOpen(false);
-      onWorkspaceDeleted?.(workspace.id); // Trigger callback after deletion
     } catch (err) {
       setErrors([
         err instanceof Error ? err.message : "An unexpected error occurred.",
@@ -156,7 +150,7 @@ export function EditWorkspaceDialog({
           <div className="grid grid-cols-4 items-center gap-4">
             <Label>Contacts</Label>
             <div className="col-span-3">
-              {availableContacts.map((contact) => (
+              {availableContacts?.map((contact) => (
                 <div key={contact.id} className="flex items-center">
                   <input
                     type="checkbox"

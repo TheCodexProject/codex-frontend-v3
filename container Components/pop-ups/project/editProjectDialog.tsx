@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ProjectService } from "@/services/features/ProjectService";
+import { useProjectData } from "@/hooks/services/ProjectContext"; // Import ProjectContext
 import { Project } from "@/services/models/Project";
 import { DatePickerWithRange } from "@/components/ui/DatePickerWithRange";
 import { DateRange } from "react-day-picker";
@@ -43,16 +43,17 @@ export enum Priority {
 type EditProjectDialogProps = {
   project: Project;
   trigger: React.ReactNode;
-  onProjectUpdated?: (updatedProject: Project) => void;
-  onProjectDeleted?: (projectId: string) => void; // Callback for when the project is deleted
 };
 
 export function EditProjectDialog({
   project,
   trigger,
-  onProjectUpdated,
-  onProjectDeleted,
 }: EditProjectDialogProps) {
+  const {
+    updateProject,
+    deleteProject, // Use methods from ProjectContext
+  } = useProjectData();
+
   const [currentProject, setCurrentProject] = useState<Project>(project);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: project.timeRange[0] ? new Date(project.timeRange[0]) : undefined,
@@ -87,7 +88,8 @@ export function EditProjectDialog({
     setLoading(true);
 
     try {
-      const updatedProject = await ProjectService.updateProject(
+      // Use updateProject from context
+      await updateProject(
         currentProject.id,
         currentProject.title,
         currentProject.description,
@@ -100,8 +102,6 @@ export function EditProjectDialog({
       setErrors([]);
       setLoading(false);
       setIsOpen(false);
-
-      onProjectUpdated?.(updatedProject);
     } catch (err) {
       setErrors([
         err instanceof Error ? err.message : "An unexpected error occurred.",
@@ -113,10 +113,10 @@ export function EditProjectDialog({
   const handleDelete = async () => {
     setLoading(true);
     try {
-      await ProjectService.deleteProject(currentProject.id);
+      // Use deleteProject from context
+      await deleteProject(currentProject.id);
       setLoading(false);
       setIsOpen(false);
-      onProjectDeleted?.(currentProject.id); // Trigger callback after deletion
     } catch (err) {
       setErrors([
         err instanceof Error ? err.message : "An unexpected error occurred.",
