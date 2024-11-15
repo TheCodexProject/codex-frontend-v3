@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import WorkspaceService from "@/services/features/WorkspaceService";
 import { Workspace } from "@/services/models/Workspace";
+import { useWorkspaceData } from "@/hooks/services/WorkspaceContext"; // Updated to use WorkspaceContext
 
 const TitleSchema = z.string().min(1, "Workspace title is required.");
 
@@ -29,8 +29,8 @@ type CreateWorkspaceDialogProps = {
 export function CreateWorkspaceDialog({
   organizationId,
   trigger,
-  onWorkspaceCreated,
-}: CreateWorkspaceDialogProps) {
+}: Omit<CreateWorkspaceDialogProps, "onWorkspaceCreated">) {
+  const { createWorkspace } = useWorkspaceData(); // Use the createWorkspace function from the context
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -50,19 +50,13 @@ export function CreateWorkspaceDialog({
     setLoading(true);
 
     try {
-      // Use WorkspaceService to create the workspace
-      const createdWorkspace = await WorkspaceService.createWorkspace(
-        title,
-        organizationId
-      );
+      // Use createWorkspace from context
+      await createWorkspace(title, organizationId);
 
       setErrors([]);
       setLoading(false);
       setIsOpen(false);
       setTitle("");
-
-      // Call the onWorkspaceCreated callback with the created workspace
-      onWorkspaceCreated?.(createdWorkspace);
     } catch (err) {
       if (err instanceof Error) {
         setErrors([err.message]);

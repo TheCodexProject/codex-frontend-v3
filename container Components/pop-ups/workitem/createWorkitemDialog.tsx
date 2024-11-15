@@ -15,8 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { WorkItemService } from "@/services/features/WorkItemService";
-import { WorkItem } from "@/services/models/WorkItem";
+import { useWorkItems } from "@/hooks/services/WorkItemContext"; // Use the WorkItemContext hook
 
 // Define a zod schema for the title
 const TitleSchema = z.string().min(1, "Title is required.");
@@ -24,17 +23,13 @@ const TitleSchema = z.string().min(1, "Title is required.");
 type CreateWorkitemDialogProps = {
   projectId: string;
   trigger: React.ReactNode;
-  onWorkItemCreated?: (workItem: WorkItem) => void; // Use WorkItem type for callback
 };
-
-// Instantiate the WorkItemService
-const workItemService = new WorkItemService();
 
 export function CreateWorkitemDialog({
   projectId,
   trigger,
-  onWorkItemCreated, // Add the callback prop
 }: CreateWorkitemDialogProps) {
+  const { createWorkItem } = useWorkItems(); // Access createWorkItem from context
   const [title, setTitle] = useState("");
   const [isDisabled, setIsDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -58,19 +53,14 @@ export function CreateWorkitemDialog({
     setLoading(true);
 
     try {
-      const createdWorkItem = await workItemService.createWorkItem(
-        projectId,
-        title
-      );
+      // Use createWorkItem from context
+      await createWorkItem(projectId, title);
 
       setErrors([]);
       setLoading(false);
       setIsOpen(false);
       setTitle("");
       setIsDisabled(true);
-
-      // Call the onWorkItemCreated callback with the created work item
-      onWorkItemCreated?.(createdWorkItem);
     } catch (err) {
       if (err instanceof Error) {
         setErrors([err.message]);
@@ -97,9 +87,9 @@ export function CreateWorkitemDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create workitem</DialogTitle>
+          <DialogTitle>Create Work Item</DialogTitle>
           <DialogDescription>
-            Enter the details for the new workitem.
+            Enter the details for the new work item.
           </DialogDescription>
         </DialogHeader>
 
@@ -111,7 +101,7 @@ export function CreateWorkitemDialog({
                 id="title"
                 value={title}
                 onChange={handleTitleChange}
-                placeholder="Enter workitem title"
+                placeholder="Enter work item title"
               />
             </div>
           </div>
@@ -137,7 +127,7 @@ export function CreateWorkitemDialog({
                 Please wait
               </>
             ) : (
-              "Create workitem"
+              "Create Work Item"
             )}
           </Button>
         </DialogFooter>
