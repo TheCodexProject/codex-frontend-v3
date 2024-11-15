@@ -15,22 +15,20 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ProjectService } from "@/services/features/ProjectService";
-import { Project } from "@/services/models/Project";
+import { useProjectData } from "@/hooks/services/ProjectContext"; // Import useProjectData
 
 const TitleSchema = z.string().min(1, "Project name is required.");
 
 type CreateProjectDialogProps = {
   workspaceId: string;
   trigger: React.ReactNode;
-  onProjectCreated?: (project: Project) => void;
 };
 
 export function CreateProjectDialog({
   workspaceId,
   trigger,
-  onProjectCreated,
 }: CreateProjectDialogProps) {
+  const { createProject } = useProjectData(); // Access createProject from context
   const [name, setName] = useState("");
   const [isDisabled, setIsDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -54,19 +52,14 @@ export function CreateProjectDialog({
     setLoading(true);
 
     try {
-      const createdProject = await ProjectService.createProject(
-        name,
-        workspaceId
-      );
+      // Use createProject from context instead of calling ProjectService directly
+      await createProject(name, workspaceId);
 
       setErrors([]);
       setLoading(false);
       setIsOpen(false);
       setName("");
       setIsDisabled(true);
-
-      // Call the onProjectCreated callback with the created project
-      onProjectCreated?.(createdProject);
     } catch (err) {
       setErrors([
         err instanceof Error ? err.message : "An unexpected error occurred.",
