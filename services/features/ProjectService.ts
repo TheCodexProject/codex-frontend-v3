@@ -48,11 +48,11 @@ export class ProjectService {
       return new Project(
         data.id,
         data.title,
-        data.containedIn,
         data.description,
         data.status,
         data.priority,
-        data.timeRange
+        data.timeRange,
+        data.containedIn
       );
     } else {
       // ! Throw an error
@@ -81,11 +81,11 @@ export class ProjectService {
           new Project(
             project.id,
             project.title,
-            project.containedIn,
-            data.description,
+            project.description,
             project.status,
             project.priority,
-            project.timeRange
+            project.timeRange,
+            project.containedIn
           )
       );
     } else {
@@ -114,11 +114,11 @@ export class ProjectService {
       return new Project(
         data.id,
         data.title,
-        data.containedIn,
         data.description,
         data.status,
         data.priority,
-        data.timeRange
+        data.timeRange,
+        data.containedIn
       );
     } else {
       // ! Throw an error
@@ -175,11 +175,11 @@ export class ProjectService {
       return new Project(
         data.id,
         data.title,
-        data.containedIn,
         data.description,
         data.status,
         data.priority,
-        data.timeRange
+        data.timeRange,
+        data.containedIn
       );
     } else {
       // ! Throw an error

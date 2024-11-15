@@ -97,7 +97,7 @@ export default class UserService
             const data = await response.json();
 
             // * Convert the response to a user object
-            return new User(data.id, data.firstname, data.lastname, data.email, data.OwnedOrganizations, data.MemberOfOrganizations);
+            return new User(data.id, data.firstName, data.lastName, data.email, data.ownedOrganizations, data.memberOfOrganizations);
         }
         else
         {
