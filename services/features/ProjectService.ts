@@ -44,7 +44,7 @@ export class ProjectService
             const data = await response.json();
 
             // * Convert the response to an organization object
-            return new Project(data.id, data.title, data.status, data.priority,data.timeRange, data.containedIn);
+            return new Project(data.id, data.title, data.description, data.status, data.priority,data.timeRange, data.containedIn);
         } else {
             // ! Throw an error
             throw new Error('Failed to create organization');
@@ -68,7 +68,7 @@ export class ProjectService
             const data = await response.json();
 
             // * Convert the response to an organization object
-            return data.map((project: Project) => new Project(project.id, project.title, project.status, project.priority, project.timeRange, project.containedIn));
+            return data.map((project: Project) => new Project(project.id, project.title, project.description, project.status, project.priority, project.timeRange, project.containedIn));
         } else {
             // ! Throw an error
             throw new Error('Failed to get projects');
@@ -93,7 +93,7 @@ export class ProjectService
             const data = await response.json();
 
             // * Convert the response to an organization object
-            return new Project(data.id, data.title, data.status, data.priority, data.timeRange, data.containedIn);
+            return new Project(data.id, data.title, data.description, data.status, data.priority, data.timeRange, data.containedIn);
         } else {
             // ! Throw an error
             throw new Error('Failed to get project');
@@ -131,7 +131,7 @@ export class ProjectService
             const data = await response.json();
 
             // * Convert the response to an organization object
-            return new Project(data.id, data.title, data.status, data.priority, data.timeRange, data.containedIn);
+            return new Project(data.id, data.title, data.description, data.status, data.priority, data.timeRange, data.containedIn);
         } else {
             // ! Throw an error
             throw new Error('Failed to update project');
