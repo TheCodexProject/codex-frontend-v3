@@ -35,6 +35,10 @@ export function DeleteWorkspaceDialog({
     }
   };
 
+  if (!workspace) {
+    return;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px] dark:text-gray-100">

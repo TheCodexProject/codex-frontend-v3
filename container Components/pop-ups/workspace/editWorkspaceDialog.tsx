@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { z } from "zod";
+import React, { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,33 +10,35 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Workspace } from "@/services/models/Workspace";
 import { useWorkspaceData } from "@/hooks/services/WorkspaceContext";
-import { useUserData } from "@/hooks/services/UserContext"; // Import UserContext for contacts
+import { useUserData } from "@/hooks/services/UserContext";
 
-const TitleSchema = z.string().min(1, "Workspace title is required.");
-
-type EditWorkspaceDialogProps = {
+interface EditWorkspaceDialogProps {
+  isOpen: boolean;
+  setOpen: (open: boolean) => void;
   workspace: Workspace;
-  trigger: React.ReactNode;
-};
+}
 
 export function EditWorkspaceDialog({
+  isOpen,
+  setOpen,
   workspace,
-  trigger,
 }: EditWorkspaceDialogProps) {
-  const { updateWorkspace, deleteWorkspace } = useWorkspaceData();
-  const { users: availableContacts } = useUserData(); // Fetch availableContacts from UserContext
+  if (!workspace) {
+    return;
+  }
+
+  const { updateWorkspace } = useWorkspaceData();
+  const { users: availableContacts } = useUserData();
 
   const [title, setTitle] = useState(workspace.title);
   const [contactsToAdd, setContactsToAdd] = useState<string[]>([]);
   const [contactsToRemove, setContactsToRemove] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
@@ -45,11 +46,34 @@ export function EditWorkspaceDialog({
       setTitle(workspace.title);
       setContactsToAdd([]);
       setContactsToRemove([]);
+      setErrors([]);
     }
   }, [isOpen, workspace]);
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
+  const handleSubmit = async () => {
+    if (!title.trim()) {
+      setErrors(["Workspace title is required."]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await updateWorkspace(
+        workspace.id,
+        title,
+        contactsToAdd,
+        contactsToRemove,
+        [],
+        []
+      );
+      setOpen(false);
+    } catch (err) {
+      setErrors([
+        err instanceof Error ? err.message : "An unexpected error occurred.",
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleContactToggle = (contactId: string) => {
@@ -70,70 +94,15 @@ export function EditWorkspaceDialog({
     }
   };
 
-  const handleSubmit = async () => {
-    const validationResult = TitleSchema.safeParse(title);
-    if (!validationResult.success) {
-      setErrors([validationResult.error.errors[0].message]);
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await updateWorkspace(
-        workspace.id,
-        title,
-        contactsToAdd,
-        contactsToRemove,
-        [], // No projects to add
-        [] // No projects to remove
-      );
-
-      setErrors([]);
-      setLoading(false);
-      setIsOpen(false);
-    } catch (err) {
-      setErrors([
-        err instanceof Error ? err.message : "An unexpected error occurred.",
-      ]);
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    setLoading(true);
-    try {
-      await deleteWorkspace(workspace.id);
-      setLoading(false);
-      setIsOpen(false);
-    } catch (err) {
-      setErrors([
-        err instanceof Error ? err.message : "An unexpected error occurred.",
-      ]);
-      setLoading(false);
-    }
-  };
-
-  const handleClose = (open: boolean) => {
-    if (!open) {
-      setErrors([]);
-    }
-    setIsOpen(open);
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogTrigger asChild>
-        <div onClick={() => setIsOpen(true)}>{trigger}</div>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={isOpen} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-[425px] dark:text-gray-100">
         <DialogHeader>
           <DialogTitle>Edit Workspace</DialogTitle>
           <DialogDescription>
             Update the details for the selected workspace.
           </DialogDescription>
         </DialogHeader>
-
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="title">Title</Label>
@@ -141,12 +110,11 @@ export function EditWorkspaceDialog({
               <Input
                 id="title"
                 value={title}
-                onChange={handleTitleChange}
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter workspace title"
               />
             </div>
           </div>
-
           <div className="grid grid-cols-4 items-center gap-4">
             <Label>Contacts</Label>
             <div className="col-span-3">
@@ -169,7 +137,6 @@ export function EditWorkspaceDialog({
               ))}
             </div>
           </div>
-
           {errors.length > 0 && (
             <div className="text-red-500 text-sm mt-2">
               <ul className="list-disc ml-5">
@@ -180,30 +147,18 @@ export function EditWorkspaceDialog({
             </div>
           )}
         </div>
-        <DialogFooter className="flex justify-between">
-          <Button
-            disabled={loading}
-            variant="destructive"
-            type="button"
-            onClick={handleDelete}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please wait
-              </>
-            ) : (
-              "Delete Workspace"
-            )}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
           </Button>
-          <Button disabled={loading} type="button" onClick={handleSubmit}>
-            {loading ? (
+          <Button disabled={isLoading} onClick={handleSubmit}>
+            {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Please wait
               </>
             ) : (
-              "Update Workspace"
+              "Update"
             )}
           </Button>
         </DialogFooter>

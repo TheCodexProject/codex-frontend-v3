@@ -6,7 +6,7 @@ import { Workspace } from "@/services/models/Workspace";
 import { Resource } from "@/services/models/Resource";
 
 interface WorkspaceContextType {
-  workspaces: Workspace[] | null;
+  workspaces: Workspace[];
   resources: Record<string, Resource[]>; // Map workspaceId -> resources
   getWorkspaces: () => Promise<void>;
   createWorkspace: (title: string, organizationId: string) => Promise<void>;
@@ -46,7 +46,7 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export const WorkspaceProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
-  const [workspaces, setWorkspaces] = useState<Workspace[] | null>(null);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]); // Start as an empty array
   const [resources, setResources] = useState<Record<string, Resource[]>>({});
 
   const getWorkspaces = async () => {
@@ -59,7 +59,7 @@ export const WorkspaceProvider: React.FC<React.PropsWithChildren<{}>> = ({
       title,
       organizationId
     );
-    setWorkspaces((prev) => (prev ? [...prev, newWorkspace] : [newWorkspace]));
+    setWorkspaces((prev) => [...prev, newWorkspace]);
   };
 
   const updateWorkspace = async (
@@ -79,15 +79,13 @@ export const WorkspaceProvider: React.FC<React.PropsWithChildren<{}>> = ({
       projectsToRemove
     );
     setWorkspaces((prev) =>
-      prev ? prev.map((ws) => (ws.id === id ? updatedWorkspace : ws)) : null
+      prev.map((ws) => (ws.id === id ? updatedWorkspace : ws))
     );
   };
 
   const deleteWorkspace = async (id: string) => {
     await WorkspaceService.deleteWorkspace(id);
-    setWorkspaces((prev) =>
-      prev ? prev.filter((workspace) => workspace.id !== id) : null
-    );
+    setWorkspaces((prev) => prev.filter((workspace) => workspace.id !== id));
   };
 
   const getWorkspaceResources = async (workspaceId: string) => {

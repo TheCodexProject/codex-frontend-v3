@@ -30,25 +30,10 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Sidebar,
   SidebarContent,
@@ -80,31 +65,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CreateOrganizationDialog } from "@/container Components/pop-ups/organization/createOrganizationDialog";
 import { useOrganizationData } from "@/hooks/services/OrganizationContext";
-import { useWorkspaceData } from "@/hooks/services/WorkspaceContext";
 
-const initialWorkspaces = [
-  {
-    id: 1,
-    name: "Marketing",
-    icon: "Megaphone",
-    color: "#4CAF50",
-    projects: ["Website Redesign", "Social Media Campaign"],
-  },
-  {
-    id: 2,
-    name: "Development",
-    icon: "Code",
-    color: "#2196F3",
-    projects: ["Mobile App", "API Integration"],
-  },
-  {
-    id: 3,
-    name: "Sales",
-    icon: "DollarSign",
-    color: "#FFC107",
-    projects: ["Q4 Strategy", "Lead Generation"],
-  },
-];
+import { EditWorkspaceDialog } from "@/container Components/pop-ups/workspace/editWorkspaceDialog";
+import { DeleteWorkspaceDialog } from "@/container Components/pop-ups/workspace/DeleteWorkspaceDialog";
+import { CreateWorkspaceDialog } from "@/container Components/pop-ups/workspace/createWorkspaceDialog";
+import { useWorkspaceData } from "@/hooks/services/WorkspaceContext";
+import { Workspace } from "@/services/models/Workspace";
 
 const currentUser = {
   name: "John Doe",
@@ -141,28 +107,18 @@ export default function OrganizationDashboard() {
   const [currentOrganization, setCurrentOrganization] = React.useState(
     organizations[0]
   );
-  const [workspaces, setWorkspaces] = React.useState(initialWorkspaces);
-  const [newWorkspaceName, setNewWorkspaceName] = React.useState("");
-  const [newWorkspaceIcon, setNewWorkspaceIcon] = React.useState("Folder");
-  const [newWorkspaceColor, setNewWorkspaceColor] = React.useState(
-    availableColors[0]
-  );
+
+  const { workspaces, getWorkspaces } = useWorkspaceData();
+
   const [isCreateWorkspaceDialogOpen, setIsCreateWorkspaceDialogOpen] =
     React.useState(false);
   const [isCreateOrgDialogOpen, setIsCreateOrgDialogOpen] =
     React.useState(false);
-  const [newOrgName, setNewOrgName] = React.useState("");
-  const [editingWorkspace, setEditingWorkspace] = React.useState<{
-    id: number;
-    name: string;
-    icon: string;
-    color: string;
-  } | null>(null);
+  const [editingWorkspace, setEditingWorkspace] =
+    React.useState<Workspace | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
-  const [deletingWorkspace, setDeletingWorkspace] = React.useState<{
-    id: number;
-    name: string;
-  } | null>(null);
+  const [deletingWorkspace, setDeletingWorkspace] =
+    React.useState<Workspace | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -170,6 +126,8 @@ export default function OrganizationDashboard() {
 
   React.useEffect(() => {
     getOrganizations();
+    getWorkspaces();
+    setIsLoading(false);
   }, []);
 
   React.useEffect(() => {
@@ -180,75 +138,19 @@ export default function OrganizationDashboard() {
 
   React.useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
-    setIsLoading(false);
   }, [isDarkMode]);
 
-  const handleCreateWorkspace = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const newWorkspace = {
-      id: workspaces.length + 1,
-      name: newWorkspaceName,
-      icon: newWorkspaceIcon,
-      color: newWorkspaceColor,
-      projects: [],
-    };
-    setWorkspaces([...workspaces, newWorkspace]);
-    setNewWorkspaceName("");
-    setNewWorkspaceIcon("Folder");
-    setNewWorkspaceColor(availableColors[0]);
-    setIsCreateWorkspaceDialogOpen(false);
-    setIsLoading(false);
-  };
-
-  const handleEditWorkspace = (id: number) => {
-    const workspace = workspaces.find((w) => w.id === id);
+  const handleEditWorkspace = (workspace: Workspace) => {
     if (workspace) {
-      setEditingWorkspace({
-        id: workspace.id,
-        name: workspace.name,
-        icon: workspace.icon,
-        color: workspace.color,
-      });
+      setEditingWorkspace(workspace);
       setIsEditDialogOpen(true);
     }
   };
 
-  const handleSaveEdit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (editingWorkspace) {
-      setWorkspaces(
-        workspaces.map((w) =>
-          w.id === editingWorkspace.id
-            ? {
-                ...w,
-                name: editingWorkspace.name,
-                icon: editingWorkspace.icon,
-                color: editingWorkspace.color,
-              }
-            : w
-        )
-      );
-      setIsEditDialogOpen(false);
-      setEditingWorkspace(null);
-    }
-  };
-
-  const handleDeleteWorkspace = (id: number) => {
-    const workspace = workspaces.find((w) => w.id === id);
+  const handleDeleteWorkspace = (workspace: Workspace) => {
     if (workspace) {
-      setDeletingWorkspace({ id: workspace.id, name: workspace.name });
+      setDeletingWorkspace(workspace);
       setIsDeleteDialogOpen(true);
-    }
-  };
-
-  const confirmDeleteWorkspace = () => {
-    if (deletingWorkspace) {
-      setWorkspaces(workspaces.filter((w) => w.id !== deletingWorkspace.id));
-      setIsDeleteDialogOpen(false);
-      setDeletingWorkspace(null);
     }
   };
 
@@ -264,11 +166,15 @@ export default function OrganizationDashboard() {
 
   const filteredWorkspaces = workspaces.filter(
     (workspace) =>
-      workspace.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      workspace.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       workspace.projects.some((project) =>
         project.toLowerCase().includes(searchQuery.toLowerCase())
       )
   );
+
+  if (isLoading) {
+    return <>isLoading</>;
+  }
 
   return (
     <SidebarProvider>
@@ -345,9 +251,9 @@ export default function OrganizationDashboard() {
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton className="flex w-full items-center justify-between group relative pl-4 border-l-2 border-transparent data-[state=open]:border-gray-300 dark:data-[state=open]:border-gray-600 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800">
                           <span className="flex items-center">
-                            {renderIcon(workspace.icon, workspace.color)}
+                            {/* {renderIcon(workspace.icon, workspace.color)} */}
                             <span className="ml-2 text-sm">
-                              {workspace.name}
+                              {workspace.title}
                             </span>
                           </span>
                           <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
@@ -463,8 +369,8 @@ export default function OrganizationDashboard() {
                   <Card key={workspace.id} className="flex flex-col group">
                     <CardHeader className="relative">
                       <CardTitle className="flex items-center gap-2 text-foreground">
-                        {renderIcon(workspace.icon, workspace.color)}
-                        {workspace.name}
+                        {/* {renderIcon(workspace.icon, workspace.color)} */}
+                        {workspace.title}
                       </CardTitle>
                       <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <TooltipProvider>
@@ -473,11 +379,9 @@ export default function OrganizationDashboard() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() =>
-                                  handleEditWorkspace(workspace.id)
-                                }
+                                onClick={() => handleEditWorkspace(workspace)}
                                 className="h-8 w-8 p-0 hover:text-primary"
-                                aria-label={`Edit ${workspace.name} workspace`}
+                                aria-label={`Edit ${workspace.title} workspace`}
                               >
                                 <span className="sr-only">Edit workspace</span>
                                 <Pencil className="h-4 w-4" />
@@ -494,11 +398,9 @@ export default function OrganizationDashboard() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() =>
-                                  handleDeleteWorkspace(workspace.id)
-                                }
+                                onClick={() => handleDeleteWorkspace(workspace)}
                                 className="h-8 w-8 p-0 text-destructive hover:text-destructive/90"
-                                aria-label={`Delete ${workspace.name} workspace`}
+                                aria-label={`Delete ${workspace.title} workspace`}
                               >
                                 <span className="sr-only">
                                   Delete workspace
@@ -515,7 +417,7 @@ export default function OrganizationDashboard() {
                     </CardHeader>
                     <CardContent className="flex-1">
                       <div className="text-sm text-muted-foreground mb-4">
-                        {workspace.name
+                        {workspace.title
                           .toLowerCase()
                           .includes(searchQuery.toLowerCase())
                           ? workspace.projects.length
@@ -527,7 +429,7 @@ export default function OrganizationDashboard() {
                         Projects
                       </div>
                       <div className="space-y-2">
-                        {(workspace.name
+                        {(workspace.title
                           .toLowerCase()
                           .includes(searchQuery.toLowerCase())
                           ? workspace.projects
@@ -550,234 +452,26 @@ export default function OrganizationDashboard() {
                     </CardContent>
                   </Card>
                 ))}
-                <Dialog
-                  open={isCreateWorkspaceDialogOpen}
-                  onOpenChange={setIsCreateWorkspaceDialogOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Card className="flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                      <Button
-                        variant="ghost"
-                        className="h-full w-full text-primary hover:text-primary dark:text-primary dark:hover:text-primary hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <Plus className="mr-2 h-5 w-5" />
-                        Create New Workspace
-                      </Button>
-                    </Card>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px] dark:text-gray-100">
-                    <DialogHeader>
-                      <DialogTitle>Create New Workspace</DialogTitle>
-                      <DialogDescription className="dark:text-gray-400">
-                        Enter a name, choose an icon and color for your new
-                        workspace. Click save when you're done.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleCreateWorkspace}>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label
-                            htmlFor="name"
-                            className="text-right dark:text-gray-300"
-                          >
-                            Name
-                          </Label>
-                          <Input
-                            id="name"
-                            value={newWorkspaceName}
-                            onChange={(e) =>
-                              setNewWorkspaceName(e.target.value)
-                            }
-                            className="col-span-3"
-                            placeholder="Enter workspace name"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label
-                            htmlFor="icon"
-                            className="text-right dark:text-gray-300"
-                          >
-                            Icon
-                          </Label>
-                          <Select
-                            value={newWorkspaceIcon}
-                            onValueChange={setNewWorkspaceIcon}
-                          >
-                            <SelectTrigger className="col-span-3">
-                              <SelectValue placeholder="Select an icon" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableIcons.map(({ name, icon: Icon }) => (
-                                <SelectItem key={name} value={name}>
-                                  <div className="flex items-center">
-                                    <Icon className="h-4 w-4 mr-2 text-primary" />
-                                    <span>{name}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label
-                            htmlFor="color"
-                            className="text-right dark:text-gray-300"
-                          >
-                            Color
-                          </Label>
-                          <div className="col-span-3 flex gap-2">
-                            {availableColors.map((color) => (
-                              <button
-                                key={color}
-                                type="button"
-                                className={`w-6 h-6 rounded-full ${
-                                  newWorkspaceColor === color
-                                    ? "ring-2 ring-offset-2 ring-gray-400"
-                                    : ""
-                                }`}
-                                style={{ backgroundColor: color }}
-                                onClick={() => setNewWorkspaceColor(color)}
-                                aria-label={`Select color ${color}`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button
-                          type="submit"
-                          disabled={!newWorkspaceName.trim() || isLoading}
-                        >
-                          {isLoading ? "Creating..." : "Create Workspace"}
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
+                <CreateWorkspaceDialog
+                  isOpen={isCreateWorkspaceDialogOpen}
+                  setOpen={setIsCreateWorkspaceDialogOpen}
+                  organization={currentOrganization!}
+                />
               </div>
             </div>
           </div>
         </main>
       </div>
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] dark:text-gray-100">
-          <DialogHeader>
-            <DialogTitle>Edit Workspace</DialogTitle>
-            <DialogDescription className="dark:text-gray-400">
-              Update the name, icon, and color of your workspace. Click save
-              when you're done.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSaveEdit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label
-                  htmlFor="edit-name"
-                  className="text-right dark:text-gray-300"
-                >
-                  Name
-                </Label>
-                <Input
-                  id="edit-name"
-                  value={editingWorkspace?.name || ""}
-                  onChange={(e) =>
-                    setEditingWorkspace((prev) =>
-                      prev ? { ...prev, name: e.target.value } : null
-                    )
-                  }
-                  className="col-span-3"
-                  placeholder="Enter workspace name"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label
-                  htmlFor="edit-icon"
-                  className="text-right dark:text-gray-300"
-                >
-                  Icon
-                </Label>
-                <Select
-                  value={editingWorkspace?.icon || ""}
-                  onValueChange={(value) =>
-                    setEditingWorkspace((prev) =>
-                      prev ? { ...prev, icon: value } : null
-                    )
-                  }
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select an icon" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableIcons.map(({ name, icon: Icon }) => (
-                      <SelectItem key={name} value={name}>
-                        <div className="flex items-center">
-                          <Icon className="h-4 w-4 mr-2 text-primary" />
-                          <span>{name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label
-                  htmlFor="edit-color"
-                  className="text-right dark:text-gray-300"
-                >
-                  Color
-                </Label>
-                <div className="col-span-3 flex gap-2">
-                  {availableColors.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      className={`w-6 h-6 rounded-full ${
-                        editingWorkspace?.color === color
-                          ? "ring-2 ring-offset-2 ring-gray-400"
-                          : ""
-                      }`}
-                      style={{ backgroundColor: color }}
-                      onClick={() =>
-                        setEditingWorkspace((prev) =>
-                          prev ? { ...prev, color: color } : null
-                        )
-                      }
-                      aria-label={`Select color ${color}`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit" disabled={!editingWorkspace?.name.trim()}>
-                Save Changes
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] dark:text-gray-100">
-          <DialogHeader>
-            <DialogTitle>Delete Workspace</DialogTitle>
-            <DialogDescription className="dark:text-gray-400">
-              Are you sure you want to delete the workspace "
-              {deletingWorkspace?.name}"? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmDeleteWorkspace}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditWorkspaceDialog
+        isOpen={isEditDialogOpen}
+        setOpen={setIsCreateOrgDialogOpen}
+        workspace={editingWorkspace!}
+      />
+      <DeleteWorkspaceDialog
+        isOpen={isDeleteDialogOpen}
+        setOpen={setIsDeleteDialogOpen}
+        workspace={deletingWorkspace!}
+      />
       <CreateOrganizationDialog
         isOpen={isCreateOrgDialogOpen}
         setOpen={setIsCreateOrgDialogOpen}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,29 +11,32 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Workspace } from "@/services/models/Workspace";
-import { useWorkspaceData } from "@/hooks/services/WorkspaceContext"; // Updated to use WorkspaceContext
+import { useWorkspaceData } from "@/hooks/services/WorkspaceContext";
+import { Organization } from "@/services/models/Organization"; // Import Organization model
 
 const TitleSchema = z.string().min(1, "Workspace title is required.");
 
-type CreateWorkspaceDialogProps = {
-  organizationId: string; // Organization ID to associate with the workspace
-  trigger: React.ReactNode;
-  onWorkspaceCreated?: (createdWorkspace: Workspace) => void; // Callback when workspace is created
-};
+interface CreateWorkspaceDialogProps {
+  isOpen: boolean;
+  setOpen: (open: boolean) => void;
+  organization: Organization; // Pass the whole organization object
+}
 
 export function CreateWorkspaceDialog({
-  organizationId,
-  trigger,
-}: Omit<CreateWorkspaceDialogProps, "onWorkspaceCreated">) {
+  isOpen,
+  setOpen,
+  organization,
+}: CreateWorkspaceDialogProps) {
+  if (!organization) {
+    return;
+  }
+
   const { createWorkspace } = useWorkspaceData(); // Use the createWorkspace function from the context
   const [title, setTitle] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,47 +50,35 @@ export function CreateWorkspaceDialog({
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
 
     try {
-      // Use createWorkspace from context
-      await createWorkspace(title, organizationId);
+      // Create the workspace using the organization ID from the passed object
+      await createWorkspace(title, organization.id);
 
       setErrors([]);
-      setLoading(false);
-      setIsOpen(false);
       setTitle("");
+      setOpen(false); // Close the dialog
     } catch (err) {
-      if (err instanceof Error) {
-        setErrors([err.message]);
-      } else {
-        setErrors(["An unexpected error occurred. Please try again later."]);
-      }
-      setLoading(false);
+      setErrors([
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred. Please try again later.",
+      ]);
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const handleClose = (open: boolean) => {
-    if (!open) {
-      setTitle("");
-      setErrors([]);
-    }
-    setIsOpen(open);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogTrigger asChild>
-        <div onClick={() => setIsOpen(true)}>{trigger}</div>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={isOpen} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-[425px] dark:text-gray-100">
         <DialogHeader>
           <DialogTitle>Create Workspace</DialogTitle>
           <DialogDescription>
-            Enter the details for the new workspace.
+            Add a new workspace to "{organization.name}".
           </DialogDescription>
         </DialogHeader>
-
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="title">Title</Label>
@@ -111,8 +102,8 @@ export function CreateWorkspaceDialog({
           )}
         </div>
         <DialogFooter>
-          <Button disabled={loading} type="button" onClick={handleSubmit}>
-            {loading ? (
+          <Button disabled={isLoading} type="button" onClick={handleSubmit}>
+            {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Please wait
