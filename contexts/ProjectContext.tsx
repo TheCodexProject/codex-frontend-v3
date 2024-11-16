@@ -4,7 +4,7 @@ import { useWorkspace } from "@/contexts/WorkspaceContext";
 
 interface ProjectContextType {
   currentProject: Project | null;
-  setCurrentProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  setCurrentProject: (project: Project | null) => void;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -13,14 +13,27 @@ export const ProjectProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const { currentWorkspace } = useWorkspace(); // Get the current workspace
-  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const [currentProject, setCurrentProjectState] = useState<Project | null>(
+    null
+  );
 
   useEffect(() => {
     // Reset project if the workspace changes
     if (!currentWorkspace) {
-      setCurrentProject(null);
+      setCurrentProjectState(null);
     }
   }, [currentWorkspace]);
+
+  // Wrapper to control when setCurrentProject can be called
+  const setCurrentProject = (project: Project | null) => {
+    if (!currentWorkspace) {
+      console.warn(
+        "Cannot set currentProject because no currentWorkspace is set."
+      );
+      return;
+    }
+    setCurrentProjectState(project);
+  };
 
   return (
     <ProjectContext.Provider value={{ currentProject, setCurrentProject }}>

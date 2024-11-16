@@ -4,7 +4,7 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 
 interface WorkspaceContextType {
   currentWorkspace: Workspace | null;
-  setCurrentWorkspace: React.Dispatch<React.SetStateAction<Workspace | null>>;
+  setCurrentWorkspace: (workspace: Workspace | null) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -15,16 +15,26 @@ export const WorkspaceProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const { currentOrganization } = useOrganization(); // Get the current organization
-  const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(
-    null
-  );
+  const [currentWorkspace, setCurrentWorkspaceState] =
+    useState<Workspace | null>(null);
 
   useEffect(() => {
     // Reset workspace if the organization changes
     if (!currentOrganization) {
-      setCurrentWorkspace(null);
+      setCurrentWorkspaceState(null);
     }
   }, [currentOrganization]);
+
+  // Wrapper to control when setCurrentWorkspace can be called
+  const setCurrentWorkspace = (workspace: Workspace | null) => {
+    if (!currentOrganization) {
+      console.warn(
+        "Cannot set currentWorkspace because no currentOrganization is set."
+      );
+      return;
+    }
+    setCurrentWorkspaceState(workspace);
+  };
 
   return (
     <WorkspaceContext.Provider

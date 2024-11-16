@@ -4,9 +4,7 @@ import { useUser } from "@/contexts/UserContext";
 
 interface OrganizationContextType {
   currentOrganization: Organization | null;
-  setCurrentOrganization: React.Dispatch<
-    React.SetStateAction<Organization | null>
-  >;
+  setCurrentOrganization: (organization: Organization | null) => void;
 }
 
 const OrganizationContext = createContext<OrganizationContextType | undefined>(
@@ -16,16 +14,27 @@ const OrganizationContext = createContext<OrganizationContextType | undefined>(
 export const OrganizationProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
-  const { user } = useUser(); // Get the current user
-  const [currentOrganization, setCurrentOrganization] =
+  const { currentUser } = useUser(); // Get the current user
+  const [currentOrganization, setCurrentOrganizationState] =
     useState<Organization | null>(null);
 
   useEffect(() => {
     // Reset organization if the user changes
-    if (!user) {
-      setCurrentOrganization(null);
+    if (!currentUser) {
+      setCurrentOrganizationState(null);
     }
-  }, [user]);
+  }, [currentUser]);
+
+  // Wrapper to control when setCurrentOrganization can be called
+  const setCurrentOrganization = (organization: Organization | null) => {
+    if (!currentUser) {
+      console.warn(
+        "Cannot set currentOrganization because no currentUser is set."
+      );
+      return;
+    }
+    setCurrentOrganizationState(organization);
+  };
 
   return (
     <OrganizationContext.Provider
