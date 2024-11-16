@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/services/models/User";
 
@@ -11,10 +13,20 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    // Retrieve the user from localStorage if available
+    const storedUser = localStorage.getItem("currentUser");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
   useEffect(() => {
-    // Log the current user whenever it changes
+    // Persist the current user in localStorage whenever it changes
+    if (currentUser) {
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem("currentUser");
+    }
+
     console.log("Current user updated:", currentUser);
   }, [currentUser]);
 
