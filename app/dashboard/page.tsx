@@ -75,7 +75,6 @@ import { Workspace } from "@/services/models/Workspace";
 const currentUser = {
   name: "John Doe",
   email: "john@example.com",
-  avatar: "/placeholder.svg?height=32&width=32",
 };
 
 const availableIcons = [
@@ -289,10 +288,7 @@ export default function OrganizationDashboard() {
                     <SidebarMenuButton className="w-full justify-between">
                       <div className="flex items-center">
                         <Avatar className="mr-2 h-6 w-6">
-                          <AvatarImage
-                            src={currentUser.avatar}
-                            alt={currentUser.name}
-                          />
+                          <AvatarImage alt={currentUser.name} />
                           <AvatarFallback>
                             {currentUser.name.charAt(0)}
                           </AvatarFallback>
@@ -452,6 +448,16 @@ export default function OrganizationDashboard() {
                     </CardContent>
                   </Card>
                 ))}
+                <Card className="flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                  <Button
+                    variant="ghost"
+                    className="h-full w-full text-primary hover:text-primary dark:text-primary dark:hover:text-primary hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    onClick={() => setIsCreateWorkspaceDialogOpen(true)} // Correct usage
+                  >
+                    <Plus className="mr-2 h-5 w-5" />
+                    Create New Workspace
+                  </Button>
+                </Card>
                 <CreateWorkspaceDialog
                   isOpen={isCreateWorkspaceDialogOpen}
                   setOpen={setIsCreateWorkspaceDialogOpen}

@@ -61,21 +61,28 @@ export class ProjectService {
   }
 
   /**
-   * Get all projects
-   * @returns All projects
+   * Get all projects for a specific workspace
+   * @param workspaceId - The ID of the workspace
+   * @returns All projects for the workspace
    */
-  public static async getProjects(): Promise<Project[]> {
-    // # Send the request to the API
-    const response = await fetch("https://localhost:7006/api/projects", {
-      method: "GET",
-    });
+  public static async getProjects(workspaceId: string): Promise<Project[]> {
+    // # Send the request to the API with the workspaceId as a query parameter
+    const response = await fetch(
+      `https://localhost:7006/api/projects?workspaceId=${workspaceId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     // ? Check if the request was successful
     if (response.ok) {
       // * Parse the response
       const data = await response.json();
 
-      // * Convert the response to an organization object
+      // * Convert the response to project objects
       return data.map(
         (project: Project) =>
           new Project(
@@ -90,7 +97,9 @@ export class ProjectService {
       );
     } else {
       // ! Throw an error
-      throw new Error("Failed to get projects");
+      throw new Error(
+        `Failed to get projects for workspace with ID: ${workspaceId}`
+      );
     }
   }
 

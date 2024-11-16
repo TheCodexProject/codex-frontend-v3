@@ -54,17 +54,23 @@ export default class WorkspaceService {
   }
 
   /**
-   * Get all workspaces
-   * @returns All workspaces
+   * Get all workspaces for a specific organization
+   * @param organizationId - The ID of the organization
+   * @returns All workspaces for the organization
    */
-  public static async getWorkspaces(): Promise<Workspace[]> {
-    // # Send the request to the API
-    const response = await fetch("https://localhost:7006/api/workspaces", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  public static async getWorkspaces(
+    organizationId: string
+  ): Promise<Workspace[]> {
+    // # Send the request to the API with the organizationId as a query parameter
+    const response = await fetch(
+      `https://localhost:7006/api/workspaces?organizationId=${organizationId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     // ? Check if the request was successful
     if (response.ok) {
