@@ -1,4 +1,5 @@
-﻿import { User } from "@/services/models/User";
+﻿import config from "@/config/services";
+import { User } from "@/services/models/User";
 import { UpdateUserRequest } from "@/services/request/user/UpdateUserRequest";
 import { CreateUserRequest } from "@/services/request/user/CreateUserRequest";
 
@@ -22,7 +23,7 @@ export default class UserService {
     const user = new CreateUserRequest(firstname, lastname, email);
 
     // # Send the request to the API
-    const response = await fetch("https://localhost:7006/api/users", {
+    const response = await fetch(`${config.apiBaseUrl}/api/users`, {
       method: "POST",
       body: JSON.stringify(user),
       headers: {
@@ -56,7 +57,7 @@ export default class UserService {
    * @returns All users
    */
   public static async getUsers(): Promise<User[]> {
-    const response = await fetch("https://localhost:7006/api/users", {
+    const response = await fetch(`${config.apiBaseUrl}/api/users`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -89,7 +90,7 @@ export default class UserService {
    */
   public static async getUser(id: string): Promise<User> {
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/users/${id}`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/users/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -134,7 +135,7 @@ export default class UserService {
     const user = new UpdateUserRequest(firstname, lastname, email);
 
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/users/${id}`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/users/${id}`, {
       method: "PUT",
       body: JSON.stringify(user),
       headers: {
@@ -168,7 +169,7 @@ export default class UserService {
    */
   public static async deleteUser(id: string): Promise<void> {
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/users/${id}`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/users/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

@@ -1,4 +1,5 @@
-﻿import { Project } from "@/services/models/Project";
+﻿import config from "@/config/services";
+import { Project } from "@/services/models/Project";
 import { CreateProjectRequest } from "@/services/request/project/CreateProjectRequest";
 import { UpdateProjectRequest } from "@/services/request/project/UpdateProjectRequest";
 import { Resource } from "@/services/models/Resource";
@@ -31,7 +32,7 @@ export class ProjectService {
     const project = new CreateProjectRequest(name, workspaceId);
 
     // # Send the request to the API
-    const response = await fetch("https://localhost:7006/api/projects", {
+    const response = await fetch(`${config.apiBaseUrl}/api/projects`, {
       method: "POST",
       body: JSON.stringify(project),
       headers: {
@@ -68,7 +69,7 @@ export class ProjectService {
   public static async getProjects(workspaceId: string): Promise<Project[]> {
     // # Send the request to the API with the workspaceId as a query parameter
     const response = await fetch(
-      `https://localhost:7006/api/projects?workspaceId=${workspaceId}`,
+      `${config.apiBaseUrl}/api/projects?workspaceId=${workspaceId}`,
       {
         method: "GET",
         headers: {
@@ -110,7 +111,7 @@ export class ProjectService {
    */
   public static async getProjectById(id: string): Promise<Project> {
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/projects/${id}`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/projects/${id}`, {
       method: "GET",
     });
 
@@ -167,7 +168,7 @@ export class ProjectService {
     );
 
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/projects/${id}`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/projects/${id}`, {
       method: "PUT",
       body: JSON.stringify(project),
       headers: {
@@ -202,7 +203,7 @@ export class ProjectService {
    */
   public static async deleteProject(id: string): Promise<void> {
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/projects/${id}`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/projects/${id}`, {
       method: "DELETE",
     });
 
@@ -228,7 +229,7 @@ export class ProjectService {
   ): Promise<Resource> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/resources/${resourceId}`,
       {
         method: "POST",
       }
@@ -263,7 +264,7 @@ export class ProjectService {
   ): Promise<Resource[]> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/resources`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/resources`,
       {
         method: "GET",
       }
@@ -302,7 +303,7 @@ export class ProjectService {
   ): Promise<Resource> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/resources/${resourceId}`,
       {
         method: "GET",
       }
@@ -350,7 +351,7 @@ export class ProjectService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/resources/${resourceId}`,
       {
         method: "PUT",
         body: JSON.stringify(resource),
@@ -390,7 +391,7 @@ export class ProjectService {
   ): Promise<void> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/resources/${resourceId}`,
       {
         method: "DELETE",
       }
@@ -422,7 +423,7 @@ export class ProjectService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/iterations`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/iterations`,
       {
         method: "POST",
         body: JSON.stringify(iteration),
@@ -461,7 +462,7 @@ export class ProjectService {
   ): Promise<ProjectActivity[]> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/iterations`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/iterations`,
       {
         method: "GET",
       }
@@ -501,7 +502,7 @@ export class ProjectService {
   ): Promise<ProjectActivity> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/iterations/${iterationId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/iterations/${iterationId}`,
       {
         method: "GET",
       }
@@ -554,7 +555,7 @@ export class ProjectService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/iterations/${iterationId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/iterations/${iterationId}`,
       {
         method: "PUT",
         body: JSON.stringify(iteration),
@@ -594,7 +595,7 @@ export class ProjectService {
   ): Promise<void> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/iterations/${iterationId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/iterations/${iterationId}`,
       {
         method: "DELETE",
       }
@@ -626,7 +627,7 @@ export class ProjectService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/milestones`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/milestones`,
       {
         method: "POST",
         body: JSON.stringify(iteration),
@@ -665,7 +666,7 @@ export class ProjectService {
   ): Promise<ProjectActivity[]> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/milestones`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/milestones`,
       {
         method: "GET",
       }
@@ -705,7 +706,7 @@ export class ProjectService {
   ): Promise<ProjectActivity> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/milestones/${milestoneId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/milestones/${milestoneId}`,
       {
         method: "GET",
       }
@@ -758,7 +759,7 @@ export class ProjectService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/milestones/${milestoneId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/milestones/${milestoneId}`,
       {
         method: "PUT",
         body: JSON.stringify(milestone),
@@ -798,7 +799,7 @@ export class ProjectService {
   ): Promise<void> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/projects/${projectId}/milestones/${milestoneId}`,
+      `${config.apiBaseUrl}/api/projects/${projectId}/milestones/${milestoneId}`,
       {
         method: "DELETE",
       }

@@ -1,4 +1,5 @@
-﻿import { Organization } from "@/services/models/Organization";
+﻿import config from "@/config/services";
+import { Organization } from "@/services/models/Organization";
 import { Resource } from "@/services/models/Resource";
 import { UpdateResourceRequest } from "@/services/request/resource/UpdateResourceRequest";
 import { CreateResourceRequest } from "@/services/request/resource/CreateResourceRequest";
@@ -27,7 +28,7 @@ export default class OrganizationService {
     const organization = new CreateOrganizationRequest(name, ownerId);
 
     // # Send the request to the API
-    const response = await fetch("https://localhost:7006/api/organizations", {
+    const response = await fetch(`${config.apiBaseUrl}/api/organizations`, {
       method: "POST",
       body: JSON.stringify(organization),
       headers: {
@@ -58,7 +59,7 @@ export default class OrganizationService {
   ): Promise<Organization[]> {
     // # Send the request to the API with the userId as a query parameter
     const response = await fetch(
-      `https://localhost:7006/api/organizations?userId=${userId}`,
+      `${config.apiBaseUrl}/api/organizations?userId=${userId}`,
       {
         method: "GET",
         headers: {
@@ -96,7 +97,7 @@ export default class OrganizationService {
   public static async getOrganization(id: string): Promise<Organization> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/organizations/${id}`,
+      `${config.apiBaseUrl}/api/organizations/${id}`,
       {
         method: "GET",
         headers: {
@@ -141,7 +142,7 @@ export default class OrganizationService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/organizations/${id}`,
+      `${config.apiBaseUrl}/api/organizations/${id}`,
       {
         method: "PUT",
         body: JSON.stringify(organization),
@@ -171,7 +172,7 @@ export default class OrganizationService {
   public static async deleteOrganization(id: string): Promise<void> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/organizations/${id}`,
+      `${config.apiBaseUrl}/api/organizations/${id}`,
       {
         method: "DELETE",
         headers: {
@@ -208,7 +209,7 @@ export default class OrganizationService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/organizations/${organizationId}/resources`,
+      `${config.apiBaseUrl}/api/organizations/${organizationId}/resources`,
       {
         method: "POST",
         body: JSON.stringify(resource),
@@ -247,7 +248,7 @@ export default class OrganizationService {
   ): Promise<Resource[]> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/organizations/${organizationId}/resources`,
+      `${config.apiBaseUrl}/api/organizations/${organizationId}/resources`,
       {
         method: "GET",
         headers: {
@@ -290,7 +291,7 @@ export default class OrganizationService {
   ): Promise<Resource> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/organizations/${organizationId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/organizations/${organizationId}/resources/${resourceId}`,
       {
         method: "GET",
         headers: {
@@ -341,7 +342,7 @@ export default class OrganizationService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/organizations/${organizationId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/organizations/${organizationId}/resources/${resourceId}`,
       {
         method: "PUT",
         body: JSON.stringify(resource),
@@ -381,7 +382,7 @@ export default class OrganizationService {
   ): Promise<void> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/organizations/${organizationId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/organizations/${organizationId}/resources/${resourceId}`,
       {
         method: "DELETE",
         headers: {

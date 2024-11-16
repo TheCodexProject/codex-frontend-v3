@@ -1,4 +1,5 @@
-﻿import { Workspace } from "@/services/models/Workspace";
+﻿import config from "@/config/services";
+import { Workspace } from "@/services/models/Workspace";
 import { CreateWorkspaceRequest } from "@/services/request/workspace/CreateWorkspaceRequest";
 import { UpdateWorkspaceRequest } from "@/services/request/workspace/UpdateWorkspaceRequest";
 import { Resource } from "@/services/models/Resource";
@@ -26,7 +27,7 @@ export default class WorkspaceService {
     const workspace = new CreateWorkspaceRequest(title, organizationId);
 
     // # Send the request to the API
-    const response = await fetch("https://localhost:7006/api/workspaces", {
+    const response = await fetch(`${config.apiBaseUrl}/api/workspaces`, {
       method: "POST",
       body: JSON.stringify(workspace),
       headers: {
@@ -63,7 +64,7 @@ export default class WorkspaceService {
   ): Promise<Workspace[]> {
     // # Send the request to the API with the organizationId as a query parameter
     const response = await fetch(
-      `https://localhost:7006/api/workspaces?organizationId=${organizationId}`,
+      `${config.apiBaseUrl}/api/workspaces?organizationId=${organizationId}`,
       {
         method: "GET",
         headers: {
@@ -101,15 +102,12 @@ export default class WorkspaceService {
    */
   public static async getWorkspaceById(id: string): Promise<Workspace> {
     // # Send the request to the API
-    const response = await fetch(
-      `https://localhost:7006/api/workspaces/${id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`${config.apiBaseUrl}/api/workspaces/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     // ? Check if the request was successful
     if (response.ok) {
@@ -157,16 +155,13 @@ export default class WorkspaceService {
     );
 
     // # Send the request to the API
-    const response = await fetch(
-      `https://localhost:7006/api/workspaces/${id}`,
-      {
-        method: "PUT",
-        body: JSON.stringify(workspace),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`${config.apiBaseUrl}/api/workspaces/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(workspace),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     // ? Check if the request was successful
     if (response.ok) {
@@ -193,15 +188,12 @@ export default class WorkspaceService {
    */
   public static async deleteWorkspace(id: string): Promise<void> {
     // # Send the request to the API
-    const response = await fetch(
-      `https://localhost:7006/api/workspaces/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`${config.apiBaseUrl}/api/workspaces/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     // ? Check if the request was successful
     if (!response.ok) {
@@ -231,7 +223,7 @@ export default class WorkspaceService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/workspaces/${workspaceId}/resources`,
+      `${config.apiBaseUrl}/api/workspaces/${workspaceId}/resources`,
       {
         method: "POST",
         body: JSON.stringify(resource),
@@ -270,7 +262,7 @@ export default class WorkspaceService {
   ): Promise<Resource[]> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/workspaces/${workspaceId}/resources`,
+      `${config.apiBaseUrl}/api/workspaces/${workspaceId}/resources`,
       {
         method: "GET",
         headers: {
@@ -313,7 +305,7 @@ export default class WorkspaceService {
   ): Promise<Resource> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/workspaces/${workspaceId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/workspaces/${workspaceId}/resources/${resourceId}`,
       {
         method: "GET",
         headers: {
@@ -364,7 +356,7 @@ export default class WorkspaceService {
 
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/workspaces/${workspaceId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/workspaces/${workspaceId}/resources/${resourceId}`,
       {
         method: "PUT",
         body: JSON.stringify(resource),
@@ -404,7 +396,7 @@ export default class WorkspaceService {
   ): Promise<void> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/workspaces/${workspaceId}/resources/${resourceId}`,
+      `${config.apiBaseUrl}/api/workspaces/${workspaceId}/resources/${resourceId}`,
       {
         method: "DELETE",
         headers: {
