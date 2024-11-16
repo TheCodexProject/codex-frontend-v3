@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2, AlertCircle } from "lucide-react";
+import { useUser } from "@/contexts/UserContext";
+import { useUsers } from "@/hooks/services/UserService"; // Assuming the hook is in a `hooks` folder
 
 const LoginForm: React.FC = () => {
+  const { currentUser, setCurrentUser } = useUser(); // Access context to set the current user
+  const {
+    data: users,
+    isLoading: usersLoading,
+    error: usersError,
+  } = useUsers(); // Fetch all users
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
@@ -23,13 +31,25 @@ const LoginForm: React.FC = () => {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    if (email && password) {
+    if (users && users.length > 0 && email && password) {
+      // Select the first user as the current user (fake authentication)
+      setCurrentUser(users[0]);
       setStatus("success");
     } else {
       setStatus("error");
     }
 
     setIsLoading(false);
+  }
+
+  useEffect(() => {
+    if (usersError) {
+      setStatus("error");
+    }
+  }, [usersError]);
+
+  if (usersLoading) {
+    return <div>Loading users...</div>;
   }
 
   return (
@@ -50,14 +70,21 @@ const LoginForm: React.FC = () => {
           <Alert>
             <CheckCircle2 />
             <AlertTitle>Success</AlertTitle>
-            <AlertDescription>Successfully logged in.</AlertDescription>
+            <AlertDescription>
+              Successfully logged in as {currentUser?.firstname}{" "}
+              {currentUser?.lastname}.
+            </AlertDescription>
           </Alert>
         )}
         {status === "error" && (
           <Alert variant="destructive">
             <AlertCircle />
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>Invalid credentials.</AlertDescription>
+            <AlertDescription>
+              {usersError
+                ? "Failed to fetch users."
+                : "Invalid credentials or no users available."}
+            </AlertDescription>
           </Alert>
         )}
       </div>

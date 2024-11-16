@@ -5,7 +5,7 @@ interface Config {
 
 // Define the development configuration object
 const devConfig: Config = {
-  apiBaseUrl: "http://localhost:7006",
+  apiBaseUrl: "https://localhost:7006",
 };
 
 // Define the production configuration object

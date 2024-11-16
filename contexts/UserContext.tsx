@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/services/models/User";
 
 interface UserContextType {
@@ -12,6 +12,11 @@ export const UserProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // Log the current user whenever it changes
+    console.log("Current user updated:", currentUser);
+  }, [currentUser]);
 
   return (
     <UserContext.Provider value={{ currentUser, setCurrentUser }}>
