@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useUsers } from "@/hooks/services/UserService"; // Assuming the hook is in a `hooks` folder
+import { useRouter } from "next/navigation"; // Import useRouter for routing
 
 const LoginForm: React.FC = () => {
   const { currentUser, setCurrentUser } = useUser(); // Access context to set the current user
@@ -18,6 +19,8 @@ const LoginForm: React.FC = () => {
   } = useUsers(); // Fetch all users
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const router = useRouter(); // Initialize the router for navigation
 
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,6 +38,9 @@ const LoginForm: React.FC = () => {
       // Select the first user as the current user (fake authentication)
       setCurrentUser(users[0]);
       setStatus("success");
+
+      // Route to onboard page
+      router.push("/onboard");
     } else {
       setStatus("error");
     }

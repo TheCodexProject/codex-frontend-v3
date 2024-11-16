@@ -10,13 +10,13 @@ const Footer: React.FC = () => {
       </p>
       <nav className="sm:ml-auto flex gap-4 sm:gap-6">
         <Link
-          className="text-xs text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
+          className="text-xs text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           href="#"
         >
           Terms of Service
         </Link>
         <Link
-          className="text-xs text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
+          className="text-xs text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           href="#"
         >
           Privacy
