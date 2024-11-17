@@ -1,14 +1,15 @@
 ﻿"use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useProjects } from "@/hooks/services/ProjectService";
 import { useProject } from "@/contexts/ProjectContext";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
-import { Search, Plus } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import MilestoneCard from "./MilestoneCard";
-import IterationCard from "./IterationCard";
+import ProjectProgress from "./ProjectProgressBar";
+import QuickActions from "./QuickActionsCard";
+import ActiveMilestonesCard from "./ActiveMilestonesCard"; // Import the ActiveMilestonesCard
+import CurrentIterationsCard from "./CurrentIterationsCard"; // Import the CurrentIterationsCard
 import TaskBoard from "./TaskBoard";
 
 const ProjectView: React.FC = () => {
@@ -26,7 +27,7 @@ const ProjectView: React.FC = () => {
     }
   }, [projects, isLoading, currentProject, setCurrentProject]);
 
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   if (!currentProject) {
     return (
@@ -56,39 +57,18 @@ const ProjectView: React.FC = () => {
 
         {/* Content */}
         <div className="container mx-auto px-4 py-8">
-          Project Progress
-          {/* <div className="mb-8 relative">
-            <Progress
-              value={currentProject.progress || 0}
-              className="w-full h-6 bg-gray-200 dark:bg-gray-700"
-            />
-            <span
-              className={`absolute top-1/2 transform -translate-y-1/2 text-sm font-medium ${
-                currentProject.progress === 0
-                  ? "left-1/2 -translate-x-1/2"
-                  : `left-[calc(${currentProject.progress}%_-_46px)] text-white`
-              }`}
-            >
-              {currentProject.progress || 0}%
-            </span>
-          </div> */}
+          {/* Project Progress */}
+          <div className="mb-8">
+            <ProjectProgress />
+          </div>
+
           {/* Quick Actions, Milestones, Iterations */}
           <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <div>
-              <h2 className="text-lg font-semibold mb-2">Quick Actions</h2>
-              <button className="block w-full px-4 py-2 bg-primary text-white rounded-md">
-                <Plus className="mr-2 inline-block" /> Add New Task
-              </button>
-              <button className="block w-full px-4 py-2 bg-primary text-white rounded-md mt-2">
-                <Plus className="mr-2 inline-block" /> Create Milestone
-              </button>
-              <button className="block w-full px-4 py-2 bg-primary text-white rounded-md mt-2">
-                <Plus className="mr-2 inline-block" /> Start New Iteration
-              </button>
-            </div>
-            <MilestoneCard />
-            <IterationCard />
+            <QuickActions />
+            <ActiveMilestonesCard /> {/* ActiveMilestonesCard Component */}
+            <CurrentIterationsCard /> {/* CurrentIterationsCard Component */}
           </div>
+
           {/* Task Board */}
           <TaskBoard />
         </div>
