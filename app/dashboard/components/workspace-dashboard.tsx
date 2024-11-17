@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog } from "@/components/ui/dialog";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import {
@@ -31,10 +32,12 @@ import {
   useDeleteWorkspace,
 } from "@/hooks/services/WorkspaceService";
 import ProjectsList from "./ProjectsList";
+import { CreateWorkspaceDialogContent } from "./CreateWorkspaceDialogContent";
+import { EditWorkspaceDialogContent } from "./EditWorkspaceDialogContent";
 
 export default function WorkspaceDashboard() {
-  const { currentWorkspace, setCurrentWorkspace } = useWorkspace();
-  const { currentOrganization } = useOrganization(); // Get the current organization
+  const { setCurrentWorkspace } = useWorkspace();
+  const { currentOrganization } = useOrganization();
   const { data: workspaces = [] } = useWorkspaces(
     currentOrganization?.id || ""
   );
@@ -161,15 +164,32 @@ export default function WorkspaceDashboard() {
           ))}
 
           {/* Add New Workspace */}
-          <Card
-            className="flex items-center justify-center border-2 border-dashed cursor-pointer transition-colors"
-            onClick={() => setIsCreateDialogOpen(true)}
-          >
-            <Button variant="ghost" className="h-full w-full text-primary">
+          <Card className="flex items-center justify-center border-2 border-dashed cursor-pointer transition-colors">
+            <Button
+              variant="ghost"
+              className="h-full w-full text-primary"
+              onClick={() => setIsCreateDialogOpen(true)}
+            >
               <Plus className="mr-2 h-5 w-5" />
               Create New Workspace
             </Button>
           </Card>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
+            <CreateWorkspaceDialogContent
+              open={isCreateDialogOpen}
+              onOpenChange={setIsCreateDialogOpen}
+            />
+          </Dialog>
+
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <EditWorkspaceDialogContent
+              open={isEditDialogOpen}
+              onOpenChange={setIsEditDialogOpen}
+            />
+          </Dialog>
         </div>
       </div>
     </div>
