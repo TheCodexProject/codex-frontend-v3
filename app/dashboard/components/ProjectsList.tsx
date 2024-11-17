@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useProjects } from "@/hooks/services/ProjectService";
 import { Workspace } from "@/services/models/Workspace";
 import { useProject } from "@/contexts/ProjectContext";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { Project } from "@/services/models/Project";
+import { DeleteProjectDialog } from "./DeleteProjectDialog";
 
 interface ProjectsListProps {
   workspace: Workspace;
@@ -17,16 +18,31 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ workspace }) => {
   const { setCurrentProject } = useProject();
   const { currentWorkspace, setCurrentWorkspace } = useWorkspace();
   const [pendingProject, setPendingProject] = useState<Project | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 
   const { data: projects = [], isLoading, isError } = useProjects(workspace.id);
 
   useEffect(() => {
-    // If there's a pending project and the workspace has been updated, set the project
     if (pendingProject && currentWorkspace?.id === workspace.id) {
       setCurrentProject(pendingProject);
       setPendingProject(null); // Clear pending project
     }
   }, [currentWorkspace, pendingProject, setCurrentProject, workspace.id]);
+
+  const handleProjectClick = (project: (typeof projects)[0]) => {
+    if (currentWorkspace?.id !== workspace.id) {
+      setCurrentWorkspace(workspace);
+      setPendingProject(project);
+    } else {
+      setCurrentProject(project);
+    }
+  };
+
+  const openDeleteDialog = (project: Project) => {
+    setProjectToDelete(project);
+    setIsDeleteDialogOpen(true);
+  };
 
   if (isLoading) {
     return <p>Loading projects...</p>;
@@ -36,30 +52,37 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ workspace }) => {
     return <p>Failed to load projects.</p>;
   }
 
-  const handleProjectClick = (project: (typeof projects)[0]) => {
-    // If the workspace is not already the current workspace, set it first
-    if (currentWorkspace?.id !== workspace.id) {
-      setCurrentWorkspace(workspace);
-      setPendingProject(project); // Save the project temporarily
-    } else {
-      // Otherwise, set the project directly
-      setCurrentProject(project);
-    }
-  };
-
   return (
     <div className="space-y-2">
       {projects.map((project) => (
-        <Button
+        <div
           key={project.id}
-          variant="ghost"
-          className="w-full justify-start"
-          onClick={() => handleProjectClick(project)}
+          className="flex items-center justify-between w-full group"
         >
-          <span>{project.title}</span>
-          <ChevronRight className="ml-auto h-4 w-4" />
-        </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={() => handleProjectClick(project)}
+          >
+            <span>{project.title}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:text-destructive/90 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => openDeleteDialog(project)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       ))}
+      {projectToDelete && (
+        <DeleteProjectDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          project={projectToDelete}
+        />
+      )}
     </div>
   );
 };
