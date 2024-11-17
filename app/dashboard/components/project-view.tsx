@@ -1,15 +1,15 @@
 ﻿"use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useProjects } from "@/hooks/services/ProjectService";
 import { useProject } from "@/contexts/ProjectContext";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import ProjectProgress from "./ProjectProgressBar"; // Import the ProjectProgress component
+import ProjectProgress from "./ProjectProgressBar";
 import QuickActions from "./QuickActionsCard";
-import MilestoneCard from "./MilestoneCard";
-import IterationCard from "./IterationCard";
+import ActiveMilestonesCard from "./ActiveMilestonesCard"; // Import the ActiveMilestonesCard
+import CurrentIterationsCard from "./CurrentIterationsCard"; // Import the CurrentIterationsCard
 import TaskBoard from "./TaskBoard";
 
 const ProjectView: React.FC = () => {
@@ -27,7 +27,7 @@ const ProjectView: React.FC = () => {
     }
   }, [projects, isLoading, currentProject, setCurrentProject]);
 
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   if (!currentProject) {
     return (
@@ -59,14 +59,14 @@ const ProjectView: React.FC = () => {
         <div className="container mx-auto px-4 py-8">
           {/* Project Progress */}
           <div className="mb-8">
-            <ProjectProgress /> {/* Add the ProjectProgress component */}
+            <ProjectProgress />
           </div>
 
           {/* Quick Actions, Milestones, Iterations */}
           <div className="grid gap-6 md:grid-cols-3 mb-8">
             <QuickActions />
-            <MilestoneCard />
-            <IterationCard />
+            <ActiveMilestonesCard /> {/* ActiveMilestonesCard Component */}
+            <CurrentIterationsCard /> {/* CurrentIterationsCard Component */}
           </div>
 
           {/* Task Board */}
