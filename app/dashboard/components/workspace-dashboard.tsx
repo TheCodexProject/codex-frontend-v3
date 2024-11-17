@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,14 +24,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-// import { CreateWorkspaceDialog } from "@/components/ui/custom/workspace/create-workspace-dialog";
-// import { EditWorkspaceDialog } from "@/components/ui/custom/workspace/edit-workspace-dialog";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import {
   useWorkspaces,
   useDeleteWorkspace,
 } from "@/hooks/services/WorkspaceService";
+import ProjectsList from "./ProjectsList";
 
 export default function WorkspaceDashboard() {
   const { currentWorkspace, setCurrentWorkspace } = useWorkspace();
@@ -50,12 +49,8 @@ export default function WorkspaceDashboard() {
     deleteWorkspaceMutation.mutate(id);
   };
 
-  const filteredWorkspaces = workspaces.filter(
-    (workspace) =>
-      workspace.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      workspace.projects.some((project) =>
-        project.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+  const filteredWorkspaces = workspaces.filter((workspace) =>
+    workspace.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -160,19 +155,7 @@ export default function WorkspaceDashboard() {
                 <div className="text-sm text-muted-foreground mb-4">
                   {workspace.projects.length} Projects
                 </div>
-                <div className="space-y-2">
-                  {workspace.projects.map((project) => (
-                    <Button
-                      key={project}
-                      variant="ghost"
-                      className="w-full justify-start"
-                      onClick={() => setCurrentWorkspace(workspace)}
-                    >
-                      <span>{project}</span>
-                      <ChevronRight className="ml-auto h-4 w-4" />
-                    </Button>
-                  ))}
-                </div>
+                <ProjectsList workspace={workspace} />
               </CardContent>
             </Card>
           ))}
@@ -189,19 +172,6 @@ export default function WorkspaceDashboard() {
           </Card>
         </div>
       </div>
-
-      {/* Dialogs */}
-      {/* <CreateWorkspaceDialog
-        isOpen={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        onCreateWorkspace={handleCreateWorkspace}
-      />
-      <EditWorkspaceDialog
-        isOpen={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        onEditWorkspace={handleEditWorkspace}
-        currentWorkspace={currentWorkspace}
-      /> */}
     </div>
   );
 }
