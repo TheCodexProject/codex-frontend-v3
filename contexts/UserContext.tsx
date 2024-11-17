@@ -13,17 +13,24 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
     // Retrieve the user from localStorage if available
-    const storedUser = localStorage.getItem("currentUser");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+    const storedUser =
+      typeof window !== "undefined"
+        ? localStorage.getItem("currentUser")
+        : null;
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     // Persist the current user in localStorage whenever it changes
-    if (currentUser) {
+    if (currentUser && typeof window !== "undefined") {
       localStorage.setItem("currentUser", JSON.stringify(currentUser));
-    } else {
+    } else if (typeof window !== "undefined") {
       localStorage.removeItem("currentUser");
     }
 
