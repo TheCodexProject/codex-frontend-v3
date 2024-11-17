@@ -39,21 +39,13 @@ import WorkspaceDropdown from "./WorkspaceDropdown";
 
 export default function SidebarTemplate() {
   const router = useRouter();
-  const { currentUser } = useUser();
+  const { currentUser, setCurrentUser } = useUser();
   const { currentOrganization, setCurrentOrganization } = useOrganization();
   const { data: organizations = [], isLoading: isLoadingOrganizations } =
     useOrganizations(currentUser?.id || "");
   const { data: workspaces = [], isLoading: isLoadingWorkspaces } =
     useWorkspaces(currentOrganization?.id || "");
   const [openWorkspaces, setOpenWorkspaces] = React.useState<string[]>([]);
-
-  //   // Redirect to signup if no user is logged in
-  //   useEffect(() => {
-  //     console.log("Checking for currentUser:", currentUser);
-  //     if (!currentUser) {
-  //       router.push("/signup");
-  //     }
-  //   }, [currentUser, router]);
 
   // Automatically select the first organization if available after data is loaded
   useEffect(() => {
@@ -73,7 +65,6 @@ export default function SidebarTemplate() {
     setCurrentOrganization,
   ]);
 
-  // Redirect to onboard if no organization exists and data is fully loaded
   useEffect(() => {
     if (
       !isLoadingOrganizations &&
@@ -99,8 +90,10 @@ export default function SidebarTemplate() {
     );
   };
 
-  const closeAllWorkspaces = () => {
-    setOpenWorkspaces([]);
+  const handleLogout = () => {
+    setCurrentUser(null); // Clear current user
+    setCurrentOrganization(null); // Optional: Clear current organization
+    router.push("/login"); // Redirect to login page
   };
 
   if (!currentUser || !currentOrganization) {
@@ -192,7 +185,7 @@ export default function SidebarTemplate() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton>
+            <SidebarMenuButton onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </SidebarMenuButton>

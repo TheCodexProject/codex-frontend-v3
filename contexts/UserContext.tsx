@@ -6,6 +6,7 @@ import { User } from "@/services/models/User";
 interface UserContextType {
   currentUser: User | null;
   setCurrentUser: React.Dispatch<React.SetStateAction<User | null>>;
+  isUserLoading: boolean; // Add loading state
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -14,6 +15,7 @@ export const UserProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isUserLoading, setIsUserLoading] = useState(true); // Track loading state
 
   useEffect(() => {
     // Retrieve the user from localStorage if available
@@ -24,6 +26,7 @@ export const UserProvider: React.FC<React.PropsWithChildren<{}>> = ({
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
     }
+    setIsUserLoading(false); // Mark loading as complete
   }, []);
 
   useEffect(() => {
@@ -38,7 +41,9 @@ export const UserProvider: React.FC<React.PropsWithChildren<{}>> = ({
   }, [currentUser]);
 
   return (
-    <UserContext.Provider value={{ currentUser, setCurrentUser }}>
+    <UserContext.Provider
+      value={{ currentUser, setCurrentUser, isUserLoading }}
+    >
       {children}
     </UserContext.Provider>
   );
