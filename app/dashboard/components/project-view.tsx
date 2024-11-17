@@ -86,8 +86,8 @@ const ProjectView: React.FC = () => {
                 <Plus className="mr-2 inline-block" /> Start New Iteration
               </button>
             </div>
-            {/* <MilestoneCard />
-            <IterationCard /> */}
+            <MilestoneCard />
+            <IterationCard />
           </div>
           {/* Task Board */}
           <TaskBoard />
