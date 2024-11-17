@@ -6,7 +6,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import ProjectProgress from "./ProjectProgress"; // Import the ProjectProgress component
+import ProjectProgress from "./ProjectProgressBar"; // Import the ProjectProgress component
 import QuickActions from "./QuickActionsCard";
 import MilestoneCard from "./MilestoneCard";
 import IterationCard from "./IterationCard";
