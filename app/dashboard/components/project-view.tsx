@@ -6,6 +6,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import ProjectProgress from "./ProjectProgress"; // Import the ProjectProgress component
 import QuickActions from "./QuickActionsCard";
 import MilestoneCard from "./MilestoneCard";
 import IterationCard from "./IterationCard";
@@ -56,12 +57,18 @@ const ProjectView: React.FC = () => {
 
         {/* Content */}
         <div className="container mx-auto px-4 py-8">
-          Project Progress
+          {/* Project Progress */}
+          <div className="mb-8">
+            <ProjectProgress /> {/* Add the ProjectProgress component */}
+          </div>
+
+          {/* Quick Actions, Milestones, Iterations */}
           <div className="grid gap-6 md:grid-cols-3 mb-8">
             <QuickActions />
             <MilestoneCard />
             <IterationCard />
           </div>
+
           {/* Task Board */}
           <TaskBoard />
         </div>
