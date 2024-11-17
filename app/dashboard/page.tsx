@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import SidebarTemplate from "./components/sidebar";
-// Uncomment these when implementing the respective components
-// import WorkspaceDashboard from "@/components/ui/custom/workspace/workspace-dashboard";
+import WorkspaceDashboard from "./components/workspace-dashboard";
 import ProjectView from "./components/project-view";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useProject } from "@/contexts/ProjectContext";
@@ -24,15 +23,7 @@ export default function AppLayout() {
           ) : (
             // Render `WorkspaceDashboard` when `currentProject` is null
             <div>
-              <h1>Workspace Dashboard Placeholder</h1>
-              {/* <WorkspaceDashboard
-                workspaces={workspaces}
-                onSelectProject={handleSelectProject}
-                onCreateWorkspace={handleCreateWorkspace}
-                onEditWorkspace={handleEditWorkspace}
-                onDeleteWorkspace={handleDeleteWorkspace}
-                isDarkMode={isDarkMode}
-              /> */}
+              <WorkspaceDashboard />
             </div>
           )}
         </main>
