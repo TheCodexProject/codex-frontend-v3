@@ -7,6 +7,7 @@ import { useProjects } from "@/hooks/services/ProjectService";
 import { Workspace } from "@/services/models/Workspace";
 import { useProject } from "@/contexts/ProjectContext";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
+import { Project } from "@/services/models/Project";
 
 interface ProjectsListProps {
   workspace: Workspace;
