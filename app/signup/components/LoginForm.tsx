@@ -40,7 +40,7 @@ const LoginForm: React.FC = () => {
       setStatus("success");
 
       // Route to onboard page
-      router.push("/onboard");
+      router.push("/dashboard");
     } else {
       setStatus("error");
     }
