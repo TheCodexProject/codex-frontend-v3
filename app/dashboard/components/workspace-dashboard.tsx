@@ -34,6 +34,7 @@ import {
 import ProjectsList from "./ProjectsList";
 import { CreateWorkspaceDialogContent } from "./CreateWorkspaceDialogContent";
 import { EditWorkspaceDialogContent } from "./EditWorkspaceDialogContent";
+import { CreateProjectDialogContent } from "./CreateProjectDialogContent"; // Import the Create Project Dialog
 
 export default function WorkspaceDashboard() {
   const { setCurrentWorkspace } = useWorkspace();
@@ -47,6 +48,10 @@ export default function WorkspaceDashboard() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
+  const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] =
+    React.useState(false);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] =
+    React.useState<string>("");
 
   const handleDeleteWorkspace = (id: string) => {
     deleteWorkspaceMutation.mutate(id);
@@ -96,12 +101,9 @@ export default function WorkspaceDashboard() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => {
-                            setCurrentWorkspace(workspace);
-                            setIsEditDialogOpen(true);
-                          }}
                           className="h-8 w-8 p-0 hover:text-primary"
                           aria-label={`Edit ${workspace.title} workspace`}
+                          onClick={() => setIsEditDialogOpen(true)}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -159,6 +161,17 @@ export default function WorkspaceDashboard() {
                   {workspace.projects.length} Projects
                 </div>
                 <ProjectsList workspace={workspace} />
+                <Button
+                  variant="ghost"
+                  className="mt-4 w-full text-primary border-2 border-dashed cursor-pointer transition-colors"
+                  onClick={() => {
+                    setSelectedWorkspaceId(workspace.id);
+                    setIsCreateProjectDialogOpen(true);
+                  }}
+                >
+                  <Plus className="mr-2 h-5 w-5" />
+                  Create New Project
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -174,24 +187,34 @@ export default function WorkspaceDashboard() {
               Create New Workspace
             </Button>
           </Card>
-          <Dialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-          >
-            <CreateWorkspaceDialogContent
-              open={isCreateDialogOpen}
-              onOpenChange={setIsCreateDialogOpen}
-            />
-          </Dialog>
-
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <EditWorkspaceDialogContent
-              open={isEditDialogOpen}
-              onOpenChange={setIsEditDialogOpen}
-            />
-          </Dialog>
         </div>
       </div>
+
+      {/* Create Project Dialog */}
+      <Dialog
+        open={isCreateProjectDialogOpen}
+        onOpenChange={setIsCreateProjectDialogOpen}
+      >
+        <CreateProjectDialogContent
+          open={isCreateProjectDialogOpen}
+          onOpenChange={setIsCreateProjectDialogOpen}
+          workspaceId={selectedWorkspaceId} // Pass the selected workspace ID
+        />
+      </Dialog>
+
+      {/* Create and Edit Workspace Dialogs */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <CreateWorkspaceDialogContent
+          open={isCreateDialogOpen}
+          onOpenChange={setIsCreateDialogOpen}
+        />
+      </Dialog>
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <EditWorkspaceDialogContent
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+        />
+      </Dialog>
     </div>
   );
 }
