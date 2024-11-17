@@ -35,6 +35,7 @@ import ProjectsList from "./ProjectsList";
 import { CreateWorkspaceDialogContent } from "./CreateWorkspaceDialogContent";
 import { EditWorkspaceDialogContent } from "./EditWorkspaceDialogContent";
 import { CreateProjectDialogContent } from "./CreateProjectDialogContent"; // Import the Create Project Dialog
+import { useProject } from "@/hooks/services/ProjectService";
 
 export default function WorkspaceDashboard() {
   const { setCurrentWorkspace } = useWorkspace();

@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit3 } from "lucide-react";
 import { useProjects } from "@/hooks/services/ProjectService";
 import { Workspace } from "@/services/models/Workspace";
 import { useProject } from "@/contexts/ProjectContext";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { Project } from "@/services/models/Project";
 import { DeleteProjectDialog } from "./DeleteProjectDialog";
+import { EditProjectDialog } from "./EditProjectDialog";
 
 interface ProjectsListProps {
   workspace: Workspace;
@@ -19,7 +20,9 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ workspace }) => {
   const { currentWorkspace, setCurrentWorkspace } = useWorkspace();
   const [pendingProject, setPendingProject] = useState<Project | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
 
   const { data: projects = [], isLoading, isError } = useProjects(workspace.id);
 
@@ -44,6 +47,11 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ workspace }) => {
     setIsDeleteDialogOpen(true);
   };
 
+  const openEditDialog = (project: Project) => {
+    setProjectToEdit(project);
+    setIsEditDialogOpen(true);
+  };
+
   if (isLoading) {
     return <p>Loading projects...</p>;
   }
@@ -66,14 +74,24 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ workspace }) => {
           >
             <span>{project.title}</span>
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:text-destructive/90 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={() => openDeleteDialog(project)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-primary hover:text-primary/90"
+              onClick={() => openEditDialog(project)}
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-destructive hover:text-destructive/90"
+              onClick={() => openDeleteDialog(project)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       ))}
       {projectToDelete && (
@@ -81,6 +99,13 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ workspace }) => {
           open={isDeleteDialogOpen}
           onOpenChange={setIsDeleteDialogOpen}
           project={projectToDelete}
+        />
+      )}
+      {projectToEdit && (
+        <EditProjectDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          project={projectToEdit}
         />
       )}
     </div>
