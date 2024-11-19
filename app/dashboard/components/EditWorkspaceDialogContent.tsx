@@ -13,32 +13,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUpdateWorkspace } from "@/hooks/services/WorkspaceService";
-import { useWorkspace } from "@/contexts/WorkspaceContext";
+import { Workspace } from "@/services/models/Workspace";
 
 export const EditWorkspaceDialogContent: React.FC<{
   open: boolean;
   onOpenChange: (isOpen: boolean) => void;
-}> = ({ open, onOpenChange }) => {
-  const { currentWorkspace } = useWorkspace();
+  workspace: Workspace; // Added workspace prop
+}> = ({ open, onOpenChange, workspace }) => {
   const updateWorkspaceMutation = useUpdateWorkspace();
-  const [name, setName] = useState("");
+  const [name, setName] = useState(workspace.title);
 
   useEffect(() => {
-    if (currentWorkspace) {
-      setName(currentWorkspace.title);
+    if (workspace) {
+      setName(workspace.title);
     }
-  }, [currentWorkspace]);
+  }, [workspace]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim() || !currentWorkspace) {
+    if (!name.trim()) {
       return;
     }
 
     updateWorkspaceMutation.mutate(
       {
-        id: currentWorkspace.id,
+        id: workspace.id,
         updates: {
           title: name.trim(),
           contactsToAdd: [],

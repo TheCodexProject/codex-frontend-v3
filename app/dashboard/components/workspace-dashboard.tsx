@@ -35,7 +35,7 @@ import ProjectsList from "./ProjectsList";
 import { CreateWorkspaceDialogContent } from "./CreateWorkspaceDialogContent";
 import { EditWorkspaceDialogContent } from "./EditWorkspaceDialogContent";
 import { CreateProjectDialogContent } from "./CreateProjectDialogContent"; // Import the Create Project Dialog
-import { useProject } from "@/hooks/services/ProjectService";
+import { Workspace } from "@/services/models/Workspace";
 
 export default function WorkspaceDashboard() {
   const { setCurrentWorkspace } = useWorkspace();
@@ -53,6 +53,8 @@ export default function WorkspaceDashboard() {
     React.useState(false);
   const [selectedWorkspaceId, setSelectedWorkspaceId] =
     React.useState<string>("");
+  const [workspaceToEdit, setWorkspaceToEdit] =
+    React.useState<Workspace | null>(null); // State for the workspace to edit
 
   const handleDeleteWorkspace = (id: string) => {
     deleteWorkspaceMutation.mutate(id);
@@ -89,7 +91,7 @@ export default function WorkspaceDashboard() {
       {/* Workspace List */}
       <div className="flex-1 overflow-y-auto p-6 w-full">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full">
-          {filteredWorkspaces.map((workspace) => (
+          {filteredWorkspaces.map((workspace: Workspace) => (
             <Card key={workspace.id} className="flex flex-col group">
               <CardHeader className="relative">
                 <CardTitle className="flex items-center gap-2 text-foreground">
@@ -104,7 +106,10 @@ export default function WorkspaceDashboard() {
                           size="icon"
                           className="h-8 w-8 p-0 hover:text-primary"
                           aria-label={`Edit ${workspace.title} workspace`}
-                          onClick={() => setIsEditDialogOpen(true)}
+                          onClick={() => {
+                            setWorkspaceToEdit(workspace);
+                            setIsEditDialogOpen(true);
+                          }}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -211,10 +216,13 @@ export default function WorkspaceDashboard() {
         />
       </Dialog>
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <EditWorkspaceDialogContent
-          open={isEditDialogOpen}
-          onOpenChange={setIsEditDialogOpen}
-        />
+        {workspaceToEdit && (
+          <EditWorkspaceDialogContent
+            open={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            workspace={workspaceToEdit} // Pass the workspace to edit
+          />
+        )}
       </Dialog>
     </div>
   );
