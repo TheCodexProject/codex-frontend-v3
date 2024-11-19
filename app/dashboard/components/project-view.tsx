@@ -4,13 +4,14 @@ import React, { useEffect, useState } from "react";
 import { useProjects } from "@/hooks/services/ProjectService";
 import { useProject } from "@/contexts/ProjectContext";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
-import { Search, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ProjectProgress from "./ProjectProgressBar";
 import QuickActions from "./QuickActionsCard";
-import ActiveMilestonesCard from "./ActiveMilestonesCard"; // Import the ActiveMilestonesCard
-import CurrentIterationsCard from "./CurrentIterationsCard"; // Import the CurrentIterationsCard
+import ActiveMilestonesCard from "./ActiveMilestonesCard";
+import CurrentIterationsCard from "./CurrentIterationsCard";
 import TaskBoard from "./TaskBoard";
+import { EditProjectDialog } from "./EditProjectDialog";
 
 const ProjectView: React.FC = () => {
   const { currentWorkspace } = useWorkspace();
@@ -20,14 +21,15 @@ const ProjectView: React.FC = () => {
     currentWorkspace?.id || ""
   );
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   useEffect(() => {
     if (!isLoading && projects.length > 0 && !currentProject) {
       // Automatically set the first project as current
       setCurrentProject(projects[0]);
     }
   }, [projects, isLoading, currentProject, setCurrentProject]);
-
-  const [searchQuery, setSearchQuery] = useState("");
 
   if (!currentProject) {
     return (
@@ -54,17 +56,30 @@ const ProjectView: React.FC = () => {
             >
               <ArrowLeft className="h-5 w-5 text-foreground" />
             </button>
-            <h1 className="text-2xl font-bold">{currentProject.title}</h1>
+            <div className="relative group">
+              <h1 className="text-2xl font-bold inline-block">
+                {currentProject.title}
+              </h1>
+              <button
+                onClick={() => setIsEditDialogOpen(true)}
+                className="absolute -right-12 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded hover:bg-muted"
+                aria-label="Edit Project"
+              >
+                <Pencil className="h-5 w-5 text-foreground" />
+              </button>
+            </div>
           </div>
-          <div className="relative w-64">
-            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search tasks..."
-              className="pl-8 w-full"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="flex items-center gap-4">
+            <div className="relative w-64">
+              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search tasks..."
+                className="pl-8 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
         </nav>
 
@@ -78,14 +93,21 @@ const ProjectView: React.FC = () => {
           {/* Quick Actions, Milestones, Iterations */}
           <div className="grid gap-6 md:grid-cols-3 mb-8">
             <QuickActions />
-            <ActiveMilestonesCard /> {/* ActiveMilestonesCard Component */}
-            <CurrentIterationsCard /> {/* CurrentIterationsCard Component */}
+            <ActiveMilestonesCard />
+            <CurrentIterationsCard />
           </div>
 
           {/* Task Board */}
           <TaskBoard />
         </div>
       </main>
+
+      {/* Edit Project Dialog */}
+      <EditProjectDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        project={currentProject}
+      />
     </div>
   );
 };
