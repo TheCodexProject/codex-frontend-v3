@@ -36,9 +36,10 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { useWorkspaces } from "@/hooks/services/WorkspaceService";
 import { useOrganizations } from "@/hooks/services/OrganizationService";
 import WorkspaceDropdown from "./WorkspaceDropdown";
-import { CreateOrganizationDialogContent } from "./CreateOrganizationDialogContent";
 import { EditDeleteOrganizationDialog } from "./EditDeleteOrganizationDialog";
 import { Organization } from "@/services/models/Organization";
+
+import { CreateOrganizationDialogContent } from "./CreateOrganizationDialogContent"; // Import the Create Organization Dialog
 
 export default function SidebarTemplate() {
   const router = useRouter();
@@ -50,7 +51,8 @@ export default function SidebarTemplate() {
     useWorkspaces(currentOrganization?.id || "");
 
   const [openWorkspaces, setOpenWorkspaces] = useState<string[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // State for both dialogs
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // For editing/deleting organizations
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false); // For creating organizations
   const [organizationToEdit, setOrganizationToEdit] =
     useState<Organization | null>(null); // Currently selected organization for editing
 
@@ -104,7 +106,7 @@ export default function SidebarTemplate() {
 
   const openEditDialog = (organization: Organization) => {
     setOrganizationToEdit(organization);
-    setIsDialogOpen(true);
+    setIsEditDialogOpen(true);
   };
 
   if (!currentUser || !currentOrganization) {
@@ -164,7 +166,7 @@ export default function SidebarTemplate() {
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setIsDialogOpen(true)}>
+                <DropdownMenuItem onSelect={() => setIsCreateDialogOpen(true)}>
                   <Plus className="mr-2 h-4 w-4" />
                   Create Organization
                 </DropdownMenuItem>
@@ -222,10 +224,16 @@ export default function SidebarTemplate() {
         </SidebarFooter>
       </Sidebar>
 
+      {/* Create Organization Dialog */}
+      <CreateOrganizationDialogContent
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+      />
+
       {/* Edit/Delete Organization Dialog */}
       <EditDeleteOrganizationDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
         organization={organizationToEdit}
       />
     </>
