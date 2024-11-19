@@ -14,18 +14,26 @@ import { Input } from "@/components/ui/input";
 import {
   useUpdateOrganization,
   useDeleteOrganization,
+  useOrganizations,
 } from "@/hooks/services/OrganizationService";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { Organization } from "@/services/models/Organization";
+import { useUser } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
 
 export const EditDeleteOrganizationDialog: React.FC<{
   open: boolean;
   onOpenChange: (isOpen: boolean) => void;
   organization: Organization | null; // Organization to edit
 }> = ({ open, onOpenChange, organization }) => {
-  const { currentOrganization, setCurrentOrganization } = useOrganization();
+  const router = useRouter();
   const [name, setName] = useState<string>(organization?.name || "");
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { currentUser, setCurrentUser } = useUser();
+  const { currentOrganization, setCurrentOrganization } = useOrganization();
+  const { data: organizations = [], isLoading: isLoadingOrganizations } =
+    useOrganizations(currentUser?.id || "");
 
   const updateOrganizationMutation = useUpdateOrganization();
   const deleteOrganizationMutation = useDeleteOrganization();
@@ -82,6 +90,9 @@ export const EditDeleteOrganizationDialog: React.FC<{
         // Clear the current organization if it's the one being deleted
         if (currentOrganization?.id === organization.id) {
           setCurrentOrganization(null);
+          if (organizations.length <= 1) {
+            router.push("/onboard");
+          }
         }
         onOpenChange(false); // Close dialog
       },
