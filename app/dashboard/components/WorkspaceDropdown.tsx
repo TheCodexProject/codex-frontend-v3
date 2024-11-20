@@ -23,7 +23,7 @@ interface WorkspaceDropdownProps {
 
 const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({ workspace }) => {
   const { currentWorkspace, setCurrentWorkspace } = useWorkspace();
-  const { setCurrentProject } = useProject();
+  const { currentProject, setCurrentProject } = useProject();
   const { data: projects = [], isLoading } = useProjects(workspace.id);
 
   const isOpen = currentWorkspace?.id === workspace.id;
@@ -40,12 +40,14 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({ workspace }) => {
     <Collapsible open={isOpen}>
       <CollapsibleTrigger asChild>
         <SidebarMenuButton
-          className="flex w-full items-center justify-between group relative pl-4 border-l-2 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800"
+          className={`flex w-full items-center justify-between group relative pl-4 border-l-2 ${
+            currentWorkspace?.id === workspace.id
+              ? "bg-gray-900 text-white dark:bg-gray-50 dark:text-gray-900 border-primary"
+              : "border-transparent hover:bg-gray-100 dark:hover:bg-gray-800"
+          }`}
           onClick={handleToggle}
         >
-          <span className="flex items-center">
-            <span className="ml-2 text-sm">{workspace.title}</span>
-          </span>
+          <span className="ml-2 text-sm">{workspace.title}</span>
           <ChevronRight
             className={`h-4 w-4 transition-transform duration-200 ${
               isOpen ? "rotate-90" : ""
@@ -63,10 +65,14 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({ workspace }) => {
             {projects.map((project) => (
               <SidebarMenuItem key={project.id}>
                 <SidebarMenuButton
-                  className="group flex items-center py-1 text-sm"
+                  className={`flex w-full items-center justify-between group relative pl-4 border-l-2 ${
+                    currentProject?.id === project.id
+                      ? "bg-gray-900 text-white dark:bg-gray-50 dark:text-gray-900 border-primary"
+                      : "border-transparent hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
                   onClick={() => handleProjectSelect(project)} // Handle project click
                 >
-                  {project.title}
+                  <span className="ml-2 text-sm">{project.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
