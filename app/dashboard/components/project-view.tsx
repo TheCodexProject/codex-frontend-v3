@@ -12,6 +12,7 @@ import ActiveMilestonesCard from "./ActiveMilestonesCard";
 import CurrentIterationsCard from "./CurrentIterationsCard";
 import TaskBoard from "./TaskBoard";
 import { EditProjectDialog } from "./EditProjectDialog";
+import { Button } from "@/components/ui/button";
 
 const ProjectView: React.FC = () => {
   const { currentWorkspace } = useWorkspace();
@@ -49,13 +50,12 @@ const ProjectView: React.FC = () => {
         {/* Header */}
         <nav className="sticky top-0 z-10 bg-background border-b border-border px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button
+            <Button
               onClick={handleBackClick}
-              className="p-2 rounded hover:bg-muted transition"
-              aria-label="Back to Workspace"
+              className="bg-gray-900 text-white hover:bg-gray-800 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
             >
-              <ArrowLeft className="h-5 w-5 text-foreground" />
-            </button>
+              <ArrowLeft color="white" className="h-5 w-5 text-foreground" />
+            </Button>
             <div className="relative group">
               <h1 className="text-2xl font-bold inline-block">
                 {currentProject.title}

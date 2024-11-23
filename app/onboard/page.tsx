@@ -97,7 +97,8 @@ const CreateOrganization: React.FC = () => {
                 Welcome to <span className="text-primary">Codex</span>
               </CardTitle>
               <CardDescription className="text-center">
-                Let's set up your personal organization
+                Before we can start dividing tasks, we need to set up your
+                personal organization.
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
