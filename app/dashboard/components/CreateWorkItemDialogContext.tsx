@@ -57,10 +57,8 @@ export const CreateWorkItemDialogContent: React.FC<{
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New Work Item</DialogTitle>
-          <DialogDescription>
-            Add a new work item to this project.
-          </DialogDescription>
+          <DialogTitle>Create New Task</DialogTitle>
+          <DialogDescription>Add a new task to this project.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
@@ -80,7 +78,7 @@ export const CreateWorkItemDialogContent: React.FC<{
             {createWorkItemMutation.status === "error" && (
               <p className="text-red-500 text-sm col-span-4 mt-2">
                 {createWorkItemMutation.error?.message ||
-                  "Failed to create work item. Please try again."}
+                  "Failed to create task. Please try again."}
               </p>
             )}
           </div>
@@ -90,7 +88,7 @@ export const CreateWorkItemDialogContent: React.FC<{
               disabled={isLoading || !title.trim()}
               className="mr-2"
             >
-              {isLoading ? "Creating..." : "Create Work Item"}
+              {isLoading ? "Creating..." : "Create task"}
             </Button>
             <Button
               type="button"
