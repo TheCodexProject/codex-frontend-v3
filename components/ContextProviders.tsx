@@ -1,25 +1,27 @@
 "use client";
 
 import React from "react";
-import { UserProvider } from "@/hooks/services/UserContext";
-import { WorkItemProvider } from "@/hooks/services/WorkItemContext";
-import { WorkspaceProvider } from "@/hooks/services//WorkspaceContext";
-import { ProjectProvider } from "@/hooks/services//ProjectContext";
-import { OrganizationProvider } from "@/hooks/services//OrganizationContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { UserProvider } from "@/contexts/UserContext";
+import { OrganizationProvider } from "@/contexts/OrganizationContext";
+import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
+import { ProjectProvider } from "@/contexts/ProjectContext";
+
+const queryClient = new QueryClient();
 
 const ContextProviders: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   return (
-    <UserProvider>
-      <WorkItemProvider>
-        <WorkspaceProvider>
-          <ProjectProvider>
-            <OrganizationProvider>{children}</OrganizationProvider>
-          </ProjectProvider>
-        </WorkspaceProvider>
-      </WorkItemProvider>
-    </UserProvider>
+    <QueryClientProvider client={queryClient}>
+      <UserProvider>
+        <OrganizationProvider>
+          <WorkspaceProvider>
+            <ProjectProvider>{children}</ProjectProvider>
+          </WorkspaceProvider>
+        </OrganizationProvider>
+      </UserProvider>
+    </QueryClientProvider>
   );
 };
 

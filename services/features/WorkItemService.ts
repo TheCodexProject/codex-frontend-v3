@@ -1,4 +1,5 @@
-﻿import { WorkItem } from "@/services/models/WorkItem";
+﻿import config from "@/config/services";
+import { WorkItem } from "@/services/models/WorkItem";
 import { CreateWorkItemRequest } from "@/services/request/workItem/CreateWorkItemRequest";
 import { UpdateWorkItemRequest } from "@/services/request/workItem/UpdateWorkItemRequest";
 
@@ -12,7 +13,7 @@ export class WorkItemService {
    * @param title The title of the work item
    * @returns The created work item
    */
-  public async createWorkItem(
+  public static async createWorkItem(
     projectId: string,
     title: string
   ): Promise<WorkItem> {
@@ -20,7 +21,7 @@ export class WorkItemService {
     const workItem = new CreateWorkItemRequest(title, projectId);
 
     // # Send the request to the API
-    const response = await fetch("https://localhost:7006/api/workItems", {
+    const response = await fetch(`${config.apiBaseUrl}/api/workItems`, {
       method: "POST",
       body: JSON.stringify(workItem),
       headers: {
@@ -55,10 +56,10 @@ export class WorkItemService {
    * @param projectId The ID of the project to get the work items from
    * @returns All work items in the project
    */
-  public async getWorkItems(projectId: string): Promise<WorkItem[]> {
+  public static async getWorkItems(projectId: string): Promise<WorkItem[]> {
     // # Send the request to the API
     const response = await fetch(
-      `https://localhost:7006/api/workItems?projectId=${projectId}`,
+      `${config.apiBaseUrl}/api/workItems?projectId=${projectId}`,
       {
         method: "GET",
         headers: {
@@ -97,9 +98,9 @@ export class WorkItemService {
    * @param id The ID of the work item
    * @returns The work item
    */
-  public async getWorkItem(id: string): Promise<WorkItem> {
+  public static async getWorkItem(id: string): Promise<WorkItem> {
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/workItems/${id}`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/workItems/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -140,7 +141,7 @@ export class WorkItemService {
    * @param subItemsToRemove The IDs of the work items to remove as sub-items (Optional)
    * @returns The updated work item
    */
-  public async updateWorkItem(
+  public static async updateWorkItem(
     id: string,
     title: string | null,
     description: string | null,
@@ -162,7 +163,7 @@ export class WorkItemService {
     );
 
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/workItems/${id}`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/workItems/${id}`, {
       method: "PUT",
       body: JSON.stringify(workItem),
       headers: {
@@ -196,9 +197,9 @@ export class WorkItemService {
    * Delete a work item
    * @param id The ID of the work item to delete
    */
-  public async deleteWorkItem(id: string): Promise<void> {
+  public static async deleteWorkItem(id: string): Promise<void> {
     // # Send the request to the API
-    const response = await fetch(`https://localhost:7006/api/workItems/${id}`, {
+    const response = await fetch(`${config.apiBaseUrl}/api/workItems/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
