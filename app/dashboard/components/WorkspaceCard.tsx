@@ -30,6 +30,8 @@ import { Project } from "@/services/models/Project";
 import { EditWorkspaceDialogContent } from "./EditWorkspaceDialogContent";
 import { CreateProjectDialogContent } from "./CreateProjectDialogContent";
 import ProjectCard from "./ProjectCard";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
+import { useProject } from "@/contexts/ProjectContext";
 
 interface WorkspaceCardProps {
   workspace: Workspace;
@@ -42,6 +44,15 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({ workspace }) => {
     useState(false);
 
   const { data: projects = [], isLoading, isError } = useProjects(workspace.id);
+
+  const { setCurrentWorkspace } = useWorkspace();
+  const { setCurrentProject } = useProject();
+
+  const handleProjectClick = (project: Project) => {
+    // Set both workspace and project in a single operation
+    setCurrentWorkspace(workspace);
+    setCurrentProject(project);
+  };
 
   const handleDeleteWorkspace = () => {
     deleteWorkspaceMutation.mutate(workspace.id);
@@ -125,7 +136,7 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({ workspace }) => {
             <ProjectCard
               key={project.id}
               project={project}
-              onProjectClick={() => {}}
+              onProjectClick={handleProjectClick}
             />
           ))}
         </div>
