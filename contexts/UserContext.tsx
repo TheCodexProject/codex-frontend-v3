@@ -17,55 +17,68 @@ export const UserProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isUserLoading, setIsUserLoading] = useState(true); // Represents the localStorage loading state
+  const [isUsersLoaded, setIsUsersLoaded] = useState(false); // Tracks whether users list is fully loaded
   const router = useRouter();
 
   // Fetch users using the service hook
-  const { data: users = [], isLoading: isUserLoading } = useUsers();
+  const { data: users = [], isLoading: isUsersLoading } = useUsers();
 
   // Load currentUser from localStorage on initial render
   useEffect(() => {
-    const storedUser =
-      typeof window !== "undefined"
-        ? localStorage.getItem("currentUser")
-        : null;
-
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("currentUser");
+      if (storedUser) {
+        setCurrentUser(JSON.parse(storedUser));
+        console.log("User from local storage:", storedUser);
+      }
+      setIsUserLoading(false); // Local storage loading is done
     }
   }, []);
 
+  // Track when users list is fully loaded
+  useEffect(() => {
+    if (!isUsersLoading) {
+      setIsUsersLoaded(true);
+    }
+  }, [isUsersLoading]);
+
   // Persist currentUser to localStorage whenever it changes
   useEffect(() => {
-    if (currentUser && typeof window !== "undefined") {
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
-    } else if (typeof window !== "undefined") {
-      localStorage.removeItem("currentUser");
+    if (typeof window !== "undefined") {
+      if (currentUser) {
+        localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem("currentUser");
+      }
     }
   }, [currentUser]);
 
   // Sync currentUser with the list of users whenever it updates
   useEffect(() => {
-    if (users.length > 0 && currentUser) {
-      const updatedUser = users.find((user) => user.id === currentUser.id);
+    if (!isUserLoading && isUsersLoaded) {
+      if (users.length > 0 && currentUser) {
+        const updatedUser = users.find((user) => user.id === currentUser.id);
 
-      if (updatedUser) {
-        // Update currentUser with the latest server state if needed
-        setCurrentUser((prev) =>
-          prev && prev.id === updatedUser.id
-            ? { ...prev, ...updatedUser }
-            : prev
-        );
-      } else {
-        // If currentUser is invalid, clear it and redirect
+        if (updatedUser) {
+          // Update currentUser with the latest server state if needed
+          setCurrentUser((prev) =>
+            prev && prev.id === updatedUser.id
+              ? { ...prev, ...updatedUser }
+              : prev
+          );
+        } else {
+          // If currentUser is invalid, clear it and redirect
+          setCurrentUser(null);
+          router.push("/signup");
+        }
+      } else if (users.length === 0 && currentUser) {
+        // If no users exist, clear currentUser and redirect
         setCurrentUser(null);
         router.push("/signup");
       }
-    } else if (users.length === 0 && currentUser) {
-      // If no users exist, clear currentUser and redirect
-      setCurrentUser(null);
-      router.push("/signup");
     }
-  }, [users]);
+  }, [users, isUserLoading, isUsersLoaded]);
 
   return (
     <UserContext.Provider
