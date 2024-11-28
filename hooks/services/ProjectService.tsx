@@ -5,18 +5,26 @@ import { Resource } from "@/services/models/Resource";
 import { ProjectActivity } from "@/services/models/ProjectActivity";
 
 // Fetch all projects for a workspace
-export const useProjects = (workspaceId: string) => {
+export const useProjects = (
+  workspaceId: string,
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     queryKey: ["projects", workspaceId],
     queryFn: () => ProjectService.getProjects(workspaceId),
+    enabled: options?.enabled ?? true, // Default to enabled unless explicitly set to false
   });
 };
 
 // Fetch a single project by ID
-export const useProject = (projectId: string) => {
+export const useProject = (
+  projectId: string,
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     queryKey: ["project", projectId],
     queryFn: () => ProjectService.getProjectById(projectId),
+    enabled: options?.enabled ?? true,
   });
 };
 
@@ -25,13 +33,8 @@ export const useCreateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      name,
-      workspaceId,
-    }: {
-      name: string;
-      workspaceId: string;
-    }) => ProjectService.createProject(name, workspaceId),
+    mutationFn: (params: { name: string; workspaceId: string }) =>
+      ProjectService.createProject(params.name, params.workspaceId),
     onSuccess: (_, { workspaceId }) => {
       queryClient.invalidateQueries({ queryKey: ["projects", workspaceId] });
     },
@@ -43,10 +46,7 @@ export const useUpdateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      updates,
-    }: {
+    mutationFn: (params: {
       id: string;
       updates: {
         title?: string | null;
@@ -58,13 +58,13 @@ export const useUpdateProject = () => {
       };
     }) =>
       ProjectService.updateProject(
-        id,
-        updates.title ?? null,
-        updates.description ?? null,
-        updates.status ?? null,
-        updates.priority ?? null,
-        updates.startDate ?? null,
-        updates.endDate ?? null
+        params.id,
+        params.updates.title ?? null,
+        params.updates.description ?? null,
+        params.updates.status ?? null,
+        params.updates.priority ?? null,
+        params.updates.startDate ?? null,
+        params.updates.endDate ?? null
       ),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["project", id] });
@@ -87,19 +87,28 @@ export const useDeleteProject = () => {
 };
 
 // Fetch all resources for a project
-export const useProjectResources = (projectId: string) => {
+export const useProjectResources = (
+  projectId: string,
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     queryKey: ["projectResources", projectId],
     queryFn: () => ProjectService.getResourcesForProject(projectId),
+    enabled: options?.enabled ?? true,
   });
 };
 
 // Fetch a single resource by ID for a project
-export const useProjectResource = (projectId: string, resourceId: string) => {
+export const useProjectResource = (
+  projectId: string,
+  resourceId: string,
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     queryKey: ["projectResource", projectId, resourceId],
     queryFn: () =>
       ProjectService.getResourceForProjectById(projectId, resourceId),
+    enabled: options?.enabled ?? true,
   });
 };
 

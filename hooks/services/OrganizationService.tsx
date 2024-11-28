@@ -4,18 +4,26 @@ import { Organization } from "@/services/models/Organization";
 import { Resource } from "@/services/models/Resource";
 
 // Fetch all organizations
-export const useOrganizations = (userId: string) => {
+export const useOrganizations = (
+  userId: string,
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     queryKey: ["organizations", userId],
     queryFn: () => OrganizationService.getOrganizations(userId),
+    enabled: options?.enabled ?? true, // Default to enabled unless explicitly set to false
   });
 };
 
 // Fetch a single organization
-export const useOrganization = (id: string) => {
+export const useOrganization = (
+  id: string,
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     queryKey: ["organization", id],
     queryFn: () => OrganizationService.getOrganization(id),
+    enabled: options?.enabled ?? true,
   });
 };
 
@@ -80,22 +88,28 @@ export const useDeleteOrganization = () => {
 };
 
 // Fetch resources for an organization
-export const useOrganizationResources = (organizationId: string) => {
+export const useOrganizationResources = (
+  organizationId: string,
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     queryKey: ["organizationResources", organizationId],
     queryFn: () => OrganizationService.getOrganizationResources(organizationId),
+    enabled: options?.enabled ?? true,
   });
 };
 
 // Fetch a single organization resource
 export const useOrganizationResource = (
   organizationId: string,
-  resourceId: string
+  resourceId: string,
+  options?: { enabled?: boolean }
 ) => {
   return useQuery({
     queryKey: ["organizationResource", organizationId, resourceId],
     queryFn: () =>
       OrganizationService.getOrganizationResource(organizationId, resourceId),
+    enabled: options?.enabled ?? true,
   });
 };
 

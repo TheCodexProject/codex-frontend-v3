@@ -1,12 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useUsers } from "@/hooks/services/UserService";
 import { User } from "@/services/models/User";
+import { useRouter } from "next/navigation";
 
 interface UserContextType {
   currentUser: User | null;
   setCurrentUser: React.Dispatch<React.SetStateAction<User | null>>;
-  isUserLoading: boolean; // Add loading state
+  isUserLoading: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -15,30 +17,55 @@ export const UserProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isUserLoading, setIsUserLoading] = useState(true); // Track loading state
+  const router = useRouter();
 
+  // Fetch users using the service hook
+  const { data: users = [], isLoading: isUserLoading } = useUsers();
+
+  // Load currentUser from localStorage on initial render
   useEffect(() => {
-    // Retrieve the user from localStorage if available
     const storedUser =
       typeof window !== "undefined"
         ? localStorage.getItem("currentUser")
         : null;
+
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
     }
-    setIsUserLoading(false); // Mark loading as complete
   }, []);
 
+  // Persist currentUser to localStorage whenever it changes
   useEffect(() => {
-    // Persist the current user in localStorage whenever it changes
     if (currentUser && typeof window !== "undefined") {
       localStorage.setItem("currentUser", JSON.stringify(currentUser));
     } else if (typeof window !== "undefined") {
       localStorage.removeItem("currentUser");
     }
-
-    console.log("Current user updated:", currentUser);
   }, [currentUser]);
+
+  // Sync currentUser with the list of users whenever it updates
+  useEffect(() => {
+    if (users.length > 0 && currentUser) {
+      const updatedUser = users.find((user) => user.id === currentUser.id);
+
+      if (updatedUser) {
+        // Update currentUser with the latest server state if needed
+        setCurrentUser((prev) =>
+          prev && prev.id === updatedUser.id
+            ? { ...prev, ...updatedUser }
+            : prev
+        );
+      } else {
+        // If currentUser is invalid, clear it and redirect
+        setCurrentUser(null);
+        router.push("/signup");
+      }
+    } else if (users.length === 0 && currentUser) {
+      // If no users exist, clear currentUser and redirect
+      setCurrentUser(null);
+      router.push("/signup");
+    }
+  }, [users]);
 
   return (
     <UserContext.Provider
