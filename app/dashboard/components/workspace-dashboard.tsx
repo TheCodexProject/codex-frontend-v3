@@ -1,64 +1,25 @@
 "use client";
 
-import * as React from "react";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import React, { useState } from "react";
+import { Plus, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Dialog } from "@/components/ui/dialog";
-import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useOrganization } from "@/contexts/OrganizationContext";
-import {
-  useWorkspaces,
-  useDeleteWorkspace,
-} from "@/hooks/services/WorkspaceService";
-import ProjectsList from "./ProjectsList";
+import { useWorkspaces } from "@/hooks/services/WorkspaceService";
+import WorkspaceCard from "./WorkspaceCard";
 import { CreateWorkspaceDialogContent } from "./CreateWorkspaceDialogContent";
-import { EditWorkspaceDialogContent } from "./EditWorkspaceDialogContent";
-import { CreateProjectDialogContent } from "./CreateProjectDialogContent"; // Import the Create Project Dialog
-import { Workspace } from "@/services/models/Workspace";
 
 export default function WorkspaceDashboard() {
-  const { setCurrentWorkspace } = useWorkspace();
   const { currentOrganization } = useOrganization();
   const { data: workspaces = [] } = useWorkspaces(
     currentOrganization?.id || ""
   );
 
-  const deleteWorkspaceMutation = useDeleteWorkspace();
-
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
-  const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] =
-    React.useState(false);
-  const [selectedWorkspaceId, setSelectedWorkspaceId] =
-    React.useState<string>("");
-  const [workspaceToEdit, setWorkspaceToEdit] =
-    React.useState<Workspace | null>(null); // State for the workspace to edit
-
-  const handleDeleteWorkspace = (id: string) => {
-    deleteWorkspaceMutation.mutate(id);
-  };
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const filteredWorkspaces = workspaces.filter((workspace) =>
     workspace.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -91,99 +52,12 @@ export default function WorkspaceDashboard() {
       {/* Workspace List */}
       <div className="flex-1 overflow-y-auto p-6 w-full">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full">
-          {filteredWorkspaces.map((workspace: Workspace) => (
-            <Card key={workspace.id} className="flex flex-col group">
-              <CardHeader className="relative">
-                <CardTitle className="flex items-center gap-2 text-foreground">
-                  {workspace.title}
-                </CardTitle>
-                <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 p-0 hover:text-primary"
-                          aria-label={`Edit ${workspace.title} workspace`}
-                          onClick={() => {
-                            setWorkspaceToEdit(workspace);
-                            setIsEditDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Edit workspace</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive/90"
-                              aria-label={`Delete ${workspace.title} workspace`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete the {workspace.title}{" "}
-                                workspace and all of its projects.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() =>
-                                  handleDeleteWorkspace(workspace.id)
-                                }
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Delete workspace</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <div className="text-sm text-muted-foreground mb-4">
-                  {workspace.projects.length} Projects
-                </div>
-                <ProjectsList workspace={workspace} />
-                <Button
-                  variant="ghost"
-                  className="mt-4 w-full text-primary border-2 border-dashed cursor-pointer transition-colors"
-                  onClick={() => {
-                    setSelectedWorkspaceId(workspace.id);
-                    setIsCreateProjectDialogOpen(true);
-                  }}
-                >
-                  <Plus className="mr-2 h-5 w-5" />
-                  Create New Project
-                </Button>
-              </CardContent>
-            </Card>
+          {filteredWorkspaces.map((workspace) => (
+            <WorkspaceCard key={workspace.id} workspace={workspace} />
           ))}
 
           {/* Add New Workspace */}
-          <Card className="flex items-center justify-center border-2 border-dashed cursor-pointer transition-colors">
+          <div className="flex items-center justify-center border-2 border-dashed cursor-pointer transition-colors">
             <Button
               variant="ghost"
               className="h-full w-full text-primary"
@@ -192,37 +66,16 @@ export default function WorkspaceDashboard() {
               <Plus className="mr-2 h-5 w-5" />
               Create New Workspace
             </Button>
-          </Card>
+          </div>
         </div>
       </div>
 
-      {/* Create Project Dialog */}
-      <Dialog
-        open={isCreateProjectDialogOpen}
-        onOpenChange={setIsCreateProjectDialogOpen}
-      >
-        <CreateProjectDialogContent
-          open={isCreateProjectDialogOpen}
-          onOpenChange={setIsCreateProjectDialogOpen}
-          workspaceId={selectedWorkspaceId} // Pass the selected workspace ID
-        />
-      </Dialog>
-
-      {/* Create and Edit Workspace Dialogs */}
+      {/* Create Workspace Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <CreateWorkspaceDialogContent
           open={isCreateDialogOpen}
           onOpenChange={setIsCreateDialogOpen}
         />
-      </Dialog>
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        {workspaceToEdit && (
-          <EditWorkspaceDialogContent
-            open={isEditDialogOpen}
-            onOpenChange={setIsEditDialogOpen}
-            workspace={workspaceToEdit} // Pass the workspace to edit
-          />
-        )}
       </Dialog>
     </div>
   );
